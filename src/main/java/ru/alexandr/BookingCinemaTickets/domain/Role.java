@@ -8,29 +8,24 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "genres")
-public class Genre {
+@Table(name = "roles")
+public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "genre_id")
+    @Column(name = "role_id")
     private UUID id;
 
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    @Column(name = "description")
-    private String description;
+    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final Set<RoleUser> users = new HashSet<>();
 
-    @OneToMany(mappedBy = "genre", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final Set<GenreMovie> movies = new HashSet<>();
-
-    public Genre(String name,
-                 String description) {
+    public Role(String name) {
         this.name = name;
-        this.description = description;
     }
 
-    protected Genre() {
+    protected Role() {
 
     }
 
@@ -46,16 +41,8 @@ public class Genre {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Set<GenreMovie> getMovies() {
-        return movies;
+    public Set<RoleUser> getUsers() {
+        return users;
     }
 
     @Override
@@ -63,8 +50,9 @@ public class Genre {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Genre genre = (Genre) o;
-        return Objects.equals(getId(), genre.getId());
+        Role role = (Role) o;
+
+        return Objects.equals(getId(), role.getId());
     }
 
     @Override
@@ -74,10 +62,9 @@ public class Genre {
 
     @Override
     public String toString() {
-        return "Genre{" +
+        return "Role{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
                 '}';
     }
 }

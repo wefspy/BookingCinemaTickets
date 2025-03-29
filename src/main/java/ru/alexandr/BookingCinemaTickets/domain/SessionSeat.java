@@ -1,0 +1,124 @@
+package ru.alexandr.BookingCinemaTickets.domain;
+
+import jakarta.persistence.*;
+import ru.alexandr.BookingCinemaTickets.domain.enums.SessionSeatStatus;
+
+import java.util.Objects;
+import java.util.UUID;
+
+@Entity
+@Table(name = "session_seats")
+public class SessionSeat {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "session_seats_id")
+    private UUID id;
+
+    @Column(name = "price", nullable = false)
+    private Double price;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private SessionSeatStatus status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "session_id", nullable = false)
+    private Session session;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seat_id", nullable = false)
+    private Seat seat;
+
+    @OneToOne(mappedBy = "sessionSeat", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Ticket ticket;
+
+    public SessionSeat(Session session,
+                       Seat seat,
+                       Double price,
+                       SessionSeatStatus status) {
+        this.session = session;
+        this.seat = seat;
+        this.price = price;
+        this.status = status;
+    }
+
+    protected SessionSeat() {
+
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public Session getSession() {
+        return session;
+    }
+
+    public void setSession(Session session) {
+        this.session = session;
+    }
+
+    public Seat getSeat() {
+        return seat;
+    }
+
+    public void setSeat(Seat seat) {
+        this.seat = seat;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+
+    public SessionSeatStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(SessionSeatStatus status) {
+        this.status = status;
+    }
+
+    public Ticket getTicket() {
+        return ticket;
+    }
+
+    public void setTicket(Ticket ticket) {
+        if (this.ticket != null) {
+            this.ticket.setSessionSeat(null);
+        }
+
+        this.ticket = ticket;
+
+        if (ticket != null) {
+            ticket.setSessionSeat(this);
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        SessionSeat that = (SessionSeat) o;
+
+        return Objects.equals(getId(), that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
+    }
+
+    @Override
+    public String toString() {
+        return "SessionSeat{" +
+                "id=" + id +
+                ", price=" + price +
+                ", status=" + status +
+                '}';
+    }
+}
