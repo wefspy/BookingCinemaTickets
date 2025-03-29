@@ -21,6 +21,11 @@ mvn spring-boot:run
 
 🔗 [http://localhost:8080/](http://localhost:8080/)
 
+## 📐 ER-диаграмма базы данных
+Для лучшего понимания структуры базы данных и связей между таблицами представлена **ER-диаграмма**:
+
+🔗 [dbdiagram.io](https://dbdiagram.io/d/bookingCinemaTickets-6719f49497a66db9a3194758)
+
 ## 📊 Метрики
 
 ### 🔍 Actuator
