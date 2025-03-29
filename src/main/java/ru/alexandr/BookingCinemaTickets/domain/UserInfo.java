@@ -1,41 +1,72 @@
 package ru.alexandr.BookingCinemaTickets.domain;
 
-import java.time.LocalDateTime;
-import java.util.Objects;
+import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+
+@Entity
+@Table(name = "users_info")
 public class UserInfo {
-    private Long id;
-    private String username;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "user_id")
+    private UUID id;
+
+    @Column(name = "email")
     private String email;
+
+    @Column(name = "phone_number")
     private String phoneNumber;
+
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    public UserInfo(Long id,
-                    String username,
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "username", nullable = false, unique = true)
+    private User user;
+
+    @OneToMany(mappedBy = "userInfo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final Set<Payment> payments = new HashSet<>();
+
+    @OneToMany(mappedBy = "userInfo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final Set<Ticket> tickets = new HashSet<>();
+
+    public UserInfo(User user,
                     String email,
                     String phoneNumber,
                     LocalDateTime createdAt) {
-        this.id = id;
-        this.username = username;
+        this.user = user;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.createdAt = createdAt;
     }
 
-    public Long getId() {
+    protected UserInfo() {
+
+    }
+
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public User getUser() {
+        return user;
     }
 
-    public String getUsername() {
-        return username;
-    }
+    public void setUser(User user) {
+        if (this.user != null) {
+            this.user.setUserInfo(null);
+        }
 
-    public void setUsername(String username) {
-        this.username = username;
+        this.user = user;
+
+        if (user != null) {
+            user.setUserInfo(this);
+        }
     }
 
     public String getEmail() {
@@ -62,6 +93,14 @@ public class UserInfo {
         this.createdAt = createdAt;
     }
 
+    public Set<Payment> getPayments() {
+        return payments;
+    }
+
+    public Set<Ticket> getTickets() {
+        return tickets;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
@@ -69,28 +108,18 @@ public class UserInfo {
         }
         UserInfo userInfo = (UserInfo) o;
 
-        return Objects.equals(getId(), userInfo.getId())
-                && Objects.equals(getUsername(), userInfo.getUsername())
-                && Objects.equals(getEmail(), userInfo.getEmail())
-                && Objects.equals(getPhoneNumber(), userInfo.getPhoneNumber())
-                && Objects.equals(getCreatedAt(), userInfo.getCreatedAt());
+        return Objects.equals(getId(), userInfo.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(
-                getId(),
-                getUsername(),
-                getEmail(),
-                getPhoneNumber(),
-                getCreatedAt());
+        return Objects.hash(getId());
     }
 
     @Override
     public String toString() {
         return "UserInfo{" +
                 "id=" + id +
-                ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", createdAt=" + createdAt +

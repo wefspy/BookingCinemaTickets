@@ -1,52 +1,91 @@
 package ru.alexandr.BookingCinemaTickets.domain;
 
-import java.time.LocalDateTime;
-import java.util.Objects;
+import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+
+@Entity
+@Table(name = "tickets")
 public class Ticket {
-    private Long id;
-    private Long userId;
-    private Long sessionSeatId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "ticket_id")
+    private UUID id;
+
+    @Column(name = "booking_time", nullable = false)
     private LocalDateTime bookingTime;
+
+    @Column(name = "qr_code", nullable = false, unique = true)
     private String qrCode;
+
+    @Column(name = "used", nullable = false)
     private Boolean used;
 
-    public Ticket(Long id,
-                  Long userId,
-                  Long sessionSeatId,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserInfo userInfo;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "session_seats_id", nullable = false, unique = true)
+    private SessionSeat sessionSeat;
+
+    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final Set<Payment> payments = new HashSet<>();
+
+    public Ticket(UserInfo userInfo,
+                  SessionSeat sessionSeat,
                   LocalDateTime bookingTime,
                   String qrCode,
                   Boolean used) {
-        this.id = id;
-        this.userId = userId;
-        this.sessionSeatId = sessionSeatId;
+        this.userInfo = userInfo;
+        this.sessionSeat = sessionSeat;
         this.bookingTime = bookingTime;
         this.qrCode = qrCode;
         this.used = used;
     }
 
-    public Long getId() {
+    protected Ticket() {
+
+    }
+
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public UserInfo getUserInfo() {
+        return userInfo;
     }
 
-    public Long getUserId() {
-        return userId;
+    public void setUserInfo(UserInfo userInfo) {
+        if (this.userInfo != null) {
+            this.userInfo.getTickets().remove(this);
+        }
+
+        this.userInfo = userInfo;
+
+        if (userInfo != null) {
+            userInfo.getTickets().add(this);
+        }
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public SessionSeat getSessionSeat() {
+        return sessionSeat;
     }
 
-    public Long getSessionSeatId() {
-        return sessionSeatId;
-    }
+    public void setSessionSeat(SessionSeat sessionSeat) {
+        if (this.sessionSeat != null) {
+            this.sessionSeat.setTicket(null);
+        }
 
-    public void setSessionSeatId(Long sessionSeatId) {
-        this.sessionSeatId = sessionSeatId;
+        this.sessionSeat = sessionSeat;
+
+        if (sessionSeat != null) {
+            sessionSeat.setTicket(this);
+        }
     }
 
     public LocalDateTime getBookingTime() {
@@ -73,35 +112,29 @@ public class Ticket {
         this.used = used;
     }
 
+    public Set<Payment> getPayments() {
+        return payments;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Ticket ticket = (Ticket) o;
-        return Objects.equals(getId(), ticket.getId())
-                && Objects.equals(getUserId(), ticket.getUserId())
-                && Objects.equals(getSessionSeatId(), ticket.getSessionSeatId())
-                && Objects.equals(getBookingTime(), ticket.getBookingTime())
-                && Objects.equals(getQrCode(), ticket.getQrCode())
-                && Objects.equals(getUsed(), ticket.getUsed());
+
+        return Objects.equals(getId(), ticket.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(
-                getId(),
-                getUserId(),
-                getSessionSeatId(),
-                getBookingTime(),
-                getQrCode(),
-                getUsed());
+        return Objects.hash(getId());
     }
 
     @Override
     public String toString() {
         return "Ticket{" +
                 "id=" + id +
-                ", userId=" + userId +
-                ", sessionSeatId=" + sessionSeatId +
                 ", bookingTime=" + bookingTime +
                 ", qrCode='" + qrCode + '\'' +
                 ", used=" + used +

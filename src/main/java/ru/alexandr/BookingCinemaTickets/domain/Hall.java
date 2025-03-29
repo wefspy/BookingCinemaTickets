@@ -1,28 +1,46 @@
 package ru.alexandr.BookingCinemaTickets.domain;
 
+import jakarta.persistence.*;
 import ru.alexandr.BookingCinemaTickets.domain.enums.SoundSystem;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
+@Entity
+@Table(name = "halls")
 public class Hall {
-    private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "hall_id")
+    private UUID id;
+
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sound_system", nullable = false)
     private SoundSystem soundSystem;
 
-    public Hall(Long id,
-                String name,
+    @OneToMany(mappedBy = "hall", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final Set<Seat> seats = new HashSet<>();
+
+    @OneToMany(mappedBy = "hall", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final Set<Session> sessions = new HashSet<>();
+
+    public Hall(String name,
                 SoundSystem soundSystem) {
-        this.id = id;
         this.name = name;
         this.soundSystem = soundSystem;
     }
 
-    public Long getId() {
-        return id;
+    protected Hall() {
+
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public UUID getId() {
+        return id;
     }
 
     public String getName() {
@@ -41,6 +59,14 @@ public class Hall {
         this.soundSystem = soundSystem;
     }
 
+    public Set<Seat> getSeats() {
+        return seats;
+    }
+
+    public Set<Session> getSessions() {
+        return sessions;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
@@ -48,17 +74,12 @@ public class Hall {
         }
         Hall hall = (Hall) o;
 
-        return Objects.equals(getId(), hall.getId())
-                && Objects.equals(getName(), hall.getName())
-                && getSoundSystem() == hall.getSoundSystem();
+        return Objects.equals(getId(), hall.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(
-                getId(),
-                getName(),
-                getSoundSystem());
+        return Objects.hash(getId());
     }
 
     @Override

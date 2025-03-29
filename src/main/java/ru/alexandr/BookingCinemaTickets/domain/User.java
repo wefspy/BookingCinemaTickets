@@ -1,31 +1,67 @@
 package ru.alexandr.BookingCinemaTickets.domain;
 
-import java.util.Objects;
+import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+
+@Entity
+@Table(name = "users")
 public class User {
+    @Id
+    @Column(name = "username")
     private String username;
-    private String password_hash;
+
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private UserInfo userInfo;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final Set<RoleUser> roles = new HashSet<>();
 
     public User(String username,
-                String password_hash) {
+                String passwordHash) {
         this.username = username;
-        this.password_hash = password_hash;
+        this.passwordHash = passwordHash;
+    }
+
+    protected User() {
+
     }
 
     public String getUsername() {
         return username;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
-    public String getPassword_hash() {
-        return password_hash;
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
-    public void setPassword_hash(String password_hash) {
-        this.password_hash = password_hash;
+    public UserInfo getUserInfo() {
+        return userInfo;
+    }
+
+    public void setUserInfo(UserInfo userInfo) {
+        if (this.userInfo != null) {
+            this.userInfo.setUser(null);
+        }
+
+        this.userInfo = userInfo;
+
+        if (userInfo != null) {
+            userInfo.setUser(this);
+        }
+    }
+
+    public Set<RoleUser> getRoles() {
+        return roles;
     }
 
     @Override
@@ -35,22 +71,19 @@ public class User {
         }
         User user = (User) o;
 
-        return Objects.equals(getUsername(), user.getUsername())
-                && Objects.equals(getPassword_hash(), user.getPassword_hash());
+        return Objects.equals(getUsername(), user.getUsername());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(
-                getUsername(),
-                getPassword_hash());
+        return Objects.hash(getUsername());
     }
 
     @Override
     public String toString() {
         return "User{" +
                 "username='" + username + '\'' +
-                ", password_hash='" + password_hash + '\'' +
+                ", password_hash='" + passwordHash + '\'' +
                 '}';
     }
 }

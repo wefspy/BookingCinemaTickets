@@ -1,23 +1,36 @@
 package ru.alexandr.BookingCinemaTickets.domain;
 
-import java.util.Objects;
+import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+
+@Entity
+@Table(name = "roles")
 public class Role {
-    private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "role_id")
+    private UUID id;
+
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    public Role(Long id,
-                String name) {
-        this.id = id;
+    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final Set<RoleUser> users = new HashSet<>();
+
+    public Role(String name) {
         this.name = name;
     }
 
-    public Long getId() {
-        return id;
+    protected Role() {
+
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public UUID getId() {
+        return id;
     }
 
     public String getName() {
@@ -28,6 +41,10 @@ public class Role {
         this.name = name;
     }
 
+    public Set<RoleUser> getUsers() {
+        return users;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
@@ -35,13 +52,12 @@ public class Role {
         }
         Role role = (Role) o;
 
-        return Objects.equals(getId(), role.getId())
-                && Objects.equals(getName(), role.getName());
+        return Objects.equals(getId(), role.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getName());
+        return Objects.hash(getId());
     }
 
     @Override

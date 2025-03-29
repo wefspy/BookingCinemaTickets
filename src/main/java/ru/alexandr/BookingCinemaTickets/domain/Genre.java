@@ -1,22 +1,40 @@
 package ru.alexandr.BookingCinemaTickets.domain;
 
-import java.util.Objects;
+import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+
+@Entity
+@Table(name = "genres")
 public class Genre {
-    private final Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "genre_id")
+    private UUID id;
+
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
+
+    @Column(name = "description")
     private String description;
 
+    @OneToMany(mappedBy = "genre", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final Set<GenreMovie> movies = new HashSet<>();
 
-    public Genre(Long id,
-                 String name,
+    public Genre(String name,
                  String description) {
-        this.id = id;
         this.name = name;
         this.description = description;
     }
 
-    public Long getId() {
+    protected Genre() {
+
+    }
+
+    public UUID getId() {
         return id;
     }
 
@@ -36,22 +54,22 @@ public class Genre {
         this.description = description;
     }
 
+    public Set<GenreMovie> getMovies() {
+        return movies;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
         Genre genre = (Genre) o;
-        return Objects.equals(getId(), genre.getId())
-                && Objects.equals(getName(), genre.getName())
-                && Objects.equals(getDescription(), genre.getDescription());
+        return Objects.equals(getId(), genre.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(),
-                getName(),
-                getDescription());
+        return Objects.hash(getId());
     }
 
     @Override

@@ -1,42 +1,70 @@
 package ru.alexandr.BookingCinemaTickets.domain;
 
+import jakarta.persistence.*;
+
 import java.util.Objects;
+import java.util.UUID;
 
+@Entity
+@Table(name = "roles_users")
 public class RoleUser {
-    private Long id;
-    private String username;
-    private Long roleId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "roles_users_id")
+    private UUID id;
 
-    public RoleUser(Long id,
-                    String username,
-                    Long roleId) {
-        this.id = id;
-        this.username = username;
-        this.roleId = roleId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "username", nullable = false)
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
+
+    public RoleUser(User user,
+                    Role role) {
+        this.user = user;
+        this.role = role;
     }
 
-    public Long getId() {
+    protected RoleUser() {
+
+    }
+
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public User getUser() {
+        return user;
     }
 
-    public String getUsername() {
-        return username;
+    public void setUser(User user) {
+        if (this.user != null) {
+            this.user.getRoles().remove(this);
+        }
+
+        this.user = user;
+
+        if (user != null) {
+            user.getRoles().add(this);
+        }
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public Role getRole() {
+        return role;
     }
 
-    public Long getRoleId() {
-        return roleId;
-    }
+    public void setRole(Role role) {
+        if (this.role != null) {
+            this.role.getUsers().remove(this);
+        }
 
-    public void setRoleId(Long roleId) {
-        this.roleId = roleId;
+        this.role = role;
+
+        if (role != null) {
+            role.getUsers().add(this);
+        }
     }
 
     @Override
@@ -46,17 +74,12 @@ public class RoleUser {
         }
         RoleUser roleUser = (RoleUser) o;
 
-        return Objects.equals(getId(), roleUser.getId())
-                && Objects.equals(getUsername(), roleUser.getUsername())
-                && Objects.equals(getRoleId(), roleUser.getRoleId());
+        return Objects.equals(getId(), roleUser.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(
-                getId(),
-                getUsername(),
-                getRoleId());
+        return Objects.hash(getId());
     }
 
     @Override
@@ -64,8 +87,8 @@ public class RoleUser {
     toString() {
         return "RoleUser{" +
                 "id=" + id +
-                ", username='" + username + '\'' +
-                ", roleId=" + roleId +
+                ", user='" + user + '\'' +
+                ", role=" + role +
                 '}';
     }
 }

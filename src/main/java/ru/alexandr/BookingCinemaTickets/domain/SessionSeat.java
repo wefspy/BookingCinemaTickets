@@ -1,50 +1,69 @@
 package ru.alexandr.BookingCinemaTickets.domain;
 
+import jakarta.persistence.*;
 import ru.alexandr.BookingCinemaTickets.domain.enums.SessionSeatStatus;
 
 import java.util.Objects;
+import java.util.UUID;
 
+@Entity
+@Table(name = "session_seats")
 public class SessionSeat {
-    private Long id;
-    private Long sessionId;
-    private Long seatId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "session_seats_id")
+    private UUID id;
+
+    @Column(name = "price", nullable = false)
     private Double price;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
     private SessionSeatStatus status;
 
-    public SessionSeat(Long id,
-                       Long sessionId,
-                       Long seatId,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "session_id", nullable = false)
+    private Session session;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seat_id", nullable = false)
+    private Seat seat;
+
+    @OneToOne(mappedBy = "sessionSeat", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Ticket ticket;
+
+    public SessionSeat(Session session,
+                       Seat seat,
                        Double price,
                        SessionSeatStatus status) {
-        this.id = id;
-        this.sessionId = sessionId;
-        this.seatId = seatId;
+        this.session = session;
+        this.seat = seat;
         this.price = price;
         this.status = status;
     }
 
-    public Long getId() {
+    protected SessionSeat() {
+
+    }
+
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Session getSession() {
+        return session;
     }
 
-    public Long getSessionId() {
-        return sessionId;
+    public void setSession(Session session) {
+        this.session = session;
     }
 
-    public void setSessionId(Long sessionId) {
-        this.sessionId = sessionId;
+    public Seat getSeat() {
+        return seat;
     }
 
-    public Long getSeatId() {
-        return seatId;
-    }
-
-    public void setSeatId(Long seatId) {
-        this.seatId = seatId;
+    public void setSeat(Seat seat) {
+        this.seat = seat;
     }
 
     public Double getPrice() {
@@ -63,6 +82,22 @@ public class SessionSeat {
         this.status = status;
     }
 
+    public Ticket getTicket() {
+        return ticket;
+    }
+
+    public void setTicket(Ticket ticket) {
+        if (this.ticket != null) {
+            this.ticket.setSessionSeat(null);
+        }
+
+        this.ticket = ticket;
+
+        if (ticket != null) {
+            ticket.setSessionSeat(this);
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
@@ -70,29 +105,18 @@ public class SessionSeat {
         }
         SessionSeat that = (SessionSeat) o;
 
-        return Objects.equals(getId(), that.getId())
-                && Objects.equals(getSessionId(), that.getSessionId())
-                && Objects.equals(getSeatId(), that.getSeatId())
-                && Objects.equals(getPrice(), that.getPrice())
-                && getStatus() == that.getStatus();
+        return Objects.equals(getId(), that.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(
-                getId(),
-                getSessionId(),
-                getSeatId(),
-                getPrice(),
-                getStatus());
+        return Objects.hash(getId());
     }
 
     @Override
     public String toString() {
         return "SessionSeat{" +
                 "id=" + id +
-                ", sessionId=" + sessionId +
-                ", seatId=" + seatId +
                 ", price=" + price +
                 ", status=" + status +
                 '}';

@@ -1,49 +1,70 @@
 package ru.alexandr.BookingCinemaTickets.domain;
 
+import jakarta.persistence.*;
 import ru.alexandr.BookingCinemaTickets.domain.enums.SeatType;
 
-import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
+@Entity
+@Table(name = "seats")
 public class Seat {
-    private Long id;
-    private Long hallId;
-    private Integer rowNumber;
-    private Integer seatNumber;
-    private SeatType type;
-    private Long transactionId;
-    private LocalDateTime paymentTime;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "seat_id")
+    private UUID id;
 
-    public Seat(Long id,
-                Long hallId,
+    @Column(name = "row_number", nullable = false)
+    private Integer rowNumber;
+
+    @Column(name = "seat_number", nullable = false)
+    private Integer seatNumber;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false)
+    private SeatType type;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hall_id", nullable = false)
+    private Hall hall;
+
+    @OneToMany(mappedBy = "seat", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final Set<SessionSeat> sessionSeats = new HashSet<>();
+
+    public Seat(Hall hall,
                 Integer rowNumber,
                 Integer seatNumber,
-                SeatType type,
-                Long transactionId,
-                LocalDateTime paymentTime) {
-        this.id = id;
-        this.hallId = hallId;
+                SeatType type) {
+        this.hall = hall;
         this.rowNumber = rowNumber;
         this.seatNumber = seatNumber;
         this.type = type;
-        this.transactionId = transactionId;
-        this.paymentTime = paymentTime;
     }
 
-    public Long getId() {
+    protected Seat() {
+
+    }
+
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Hall getHall() {
+        return hall;
     }
 
-    public Long getHallId() {
-        return hallId;
-    }
+    public void setHall(Hall hall) {
+        if (this.hall != null) {
+            this.hall.getSeats().remove(this);
+        }
 
-    public void setHallId(Long hallId) {
-        this.hallId = hallId;
+        this.hall = hall;
+
+        if (hall != null) {
+            hall.getSeats().add(this);
+        }
     }
 
     public Integer getRowNumber() {
@@ -70,20 +91,8 @@ public class Seat {
         this.type = type;
     }
 
-    public Long getTransactionId() {
-        return transactionId;
-    }
-
-    public void setTransactionId(Long transactionId) {
-        this.transactionId = transactionId;
-    }
-
-    public LocalDateTime getPaymentTime() {
-        return paymentTime;
-    }
-
-    public void setPaymentTime(LocalDateTime paymentTime) {
-        this.paymentTime = paymentTime;
+    public Set<SessionSeat> getSessionSeats() {
+        return sessionSeats;
     }
 
     @Override
@@ -93,37 +102,21 @@ public class Seat {
         }
 
         Seat seat = (Seat) o;
-        return Objects.equals(getId(), seat.getId())
-                && Objects.equals(getHallId(), seat.getHallId())
-                && Objects.equals(getRowNumber(), seat.getRowNumber())
-                && Objects.equals(getSeatNumber(), seat.getSeatNumber())
-                && getType() == seat.getType()
-                && Objects.equals(getTransactionId(), seat.getTransactionId())
-                && Objects.equals(getPaymentTime(), seat.getPaymentTime());
+        return Objects.equals(getId(), seat.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(
-                getId(),
-                getHallId(),
-                getRowNumber(),
-                getSeatNumber(),
-                getType(),
-                getTransactionId(),
-                getPaymentTime());
+        return Objects.hash(getId());
     }
 
     @Override
     public String toString() {
         return "Seat{" +
                 "id=" + id +
-                ", hallId=" + hallId +
                 ", rowNumber=" + rowNumber +
                 ", seatNumber=" + seatNumber +
                 ", type=" + type +
-                ", transactionId=" + transactionId +
-                ", paymentTime=" + paymentTime +
                 '}';
     }
 }
