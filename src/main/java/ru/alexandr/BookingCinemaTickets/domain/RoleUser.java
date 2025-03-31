@@ -23,8 +23,8 @@ public class RoleUser {
 
     public RoleUser(User user,
                     Role role) {
-        this.user = user;
-        this.role = role;
+        setUser(user);
+        setRole(role);
     }
 
     protected RoleUser() {
@@ -41,13 +41,13 @@ public class RoleUser {
 
     public void setUser(User user) {
         if (this.user != null) {
-            this.user.getRoles().remove(this);
+            this.user.getRoleUser().remove(this);
         }
 
         this.user = user;
 
         if (user != null) {
-            user.getRoles().add(this);
+            user.getRoleUser().add(this);
         }
     }
 
@@ -57,13 +57,13 @@ public class RoleUser {
 
     public void setRole(Role role) {
         if (this.role != null) {
-            this.role.getUsers().remove(this);
+            this.role.getRoleUser().remove(this);
         }
 
         this.role = role;
 
         if (role != null) {
-            role.getUsers().add(this);
+            role.getRoleUser().add(this);
         }
     }
 

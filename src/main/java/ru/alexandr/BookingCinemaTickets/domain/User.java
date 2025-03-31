@@ -20,7 +20,7 @@ public class User {
     private UserInfo userInfo;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final Set<RoleUser> roles = new HashSet<>();
+    private final Set<RoleUser> roleUser = new HashSet<>();
 
     public User(String username,
                 String passwordHash) {
@@ -49,19 +49,23 @@ public class User {
     }
 
     public void setUserInfo(UserInfo userInfo) {
+        if (this.userInfo == userInfo) {
+            return;
+        }
+
         if (this.userInfo != null) {
             this.userInfo.setUser(null);
         }
 
         this.userInfo = userInfo;
 
-        if (userInfo != null) {
+        if (userInfo != null && userInfo.getUser() != this) {
             userInfo.setUser(this);
         }
     }
 
-    public Set<RoleUser> getRoles() {
-        return roles;
+    public Set<RoleUser> getRoleUser() {
+        return roleUser;
     }
 
     @Override
@@ -83,7 +87,7 @@ public class User {
     public String toString() {
         return "User{" +
                 "username='" + username + '\'' +
-                ", password_hash='" + passwordHash + '\'' +
+                ", passwordHash='" + passwordHash + '\'' +
                 '}';
     }
 }

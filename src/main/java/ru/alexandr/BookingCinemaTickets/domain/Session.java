@@ -33,9 +33,9 @@ public class Session {
     public Session(Movie movie,
                    Hall hall,
                    LocalDateTime startTime) {
-        this.movie = movie;
-        this.hall = hall;
-        this.startTime = startTime;
+        setMovie(movie);
+        setHall(hall);
+        setStartTime(startTime);
     }
 
     protected Session() {

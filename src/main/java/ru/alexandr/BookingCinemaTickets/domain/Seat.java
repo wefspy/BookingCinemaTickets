@@ -37,10 +37,10 @@ public class Seat {
                 Integer rowNumber,
                 Integer seatNumber,
                 SeatType type) {
-        this.hall = hall;
-        this.rowNumber = rowNumber;
-        this.seatNumber = seatNumber;
-        this.type = type;
+        setHall(hall);
+        setRowNumber(rowNumber);
+        setSeatNumber(seatNumber);
+        setType(type);
     }
 
     protected Seat() {

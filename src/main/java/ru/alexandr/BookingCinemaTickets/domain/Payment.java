@@ -38,11 +38,11 @@ public class Payment {
                    Double amount,
                    PaymentStatus status,
                    LocalDateTime paymentDate) {
-        this.userInfo = userInfo;
-        this.ticket = ticket;
-        this.amount = amount;
-        this.status = status;
-        this.paymentDate = paymentDate;
+        setUserInfo(userInfo);
+        setTicket(ticket);
+        setAmount(amount);
+        setStatus(status);
+        setPaymentDate(paymentDate);
     }
 
     protected Payment() {

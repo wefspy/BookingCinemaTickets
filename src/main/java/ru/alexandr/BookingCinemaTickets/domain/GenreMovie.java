@@ -23,8 +23,8 @@ public class GenreMovie {
 
     public GenreMovie(Movie movie,
                       Genre genre) {
-        this.movie = movie;
-        this.genre = genre;
+        setMovie(movie);
+        setGenre(genre);
     }
 
     protected GenreMovie() {
@@ -41,13 +41,13 @@ public class GenreMovie {
 
     public void setMovie(Movie movie) {
         if (this.movie != null) {
-            this.movie.getGenres().remove(this);
+            this.movie.getGenreMovie().remove(this);
         }
 
         this.movie = movie;
 
         if (movie != null) {
-            movie.getGenres().add(this);
+            movie.getGenreMovie().add(this);
         }
 
     }
@@ -58,13 +58,13 @@ public class GenreMovie {
 
     public void setGenre(Genre genre) {
         if (this.genre != null) {
-            this.genre.getMovies().remove(this);
+            this.genre.getGenreMovie().remove(this);
         }
 
         this.genre = genre;
 
         if (genre != null) {
-            genre.getMovies().add(this);
+            genre.getGenreMovie().add(this);
         }
     }
 

@@ -22,12 +22,10 @@ public class Genre {
     private String description;
 
     @OneToMany(mappedBy = "genre", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final Set<GenreMovie> movies = new HashSet<>();
+    private final Set<GenreMovie> genreMovie = new HashSet<>();
 
-    public Genre(String name,
-                 String description) {
-        this.name = name;
-        this.description = description;
+    public Genre(String name) {
+        setName(name);
     }
 
     protected Genre() {
@@ -54,8 +52,8 @@ public class Genre {
         this.description = description;
     }
 
-    public Set<GenreMovie> getMovies() {
-        return movies;
+    public Set<GenreMovie> getGenreMovie() {
+        return genreMovie;
     }
 
     @Override

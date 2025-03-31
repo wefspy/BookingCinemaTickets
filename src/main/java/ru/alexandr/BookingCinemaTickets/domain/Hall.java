@@ -31,8 +31,8 @@ public class Hall {
 
     public Hall(String name,
                 SoundSystem soundSystem) {
-        this.name = name;
-        this.soundSystem = soundSystem;
+        setName(name);
+        setSoundSystem(soundSystem);
     }
 
     protected Hall() {

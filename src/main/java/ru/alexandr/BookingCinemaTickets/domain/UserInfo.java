@@ -36,13 +36,9 @@ public class UserInfo {
     private final Set<Ticket> tickets = new HashSet<>();
 
     public UserInfo(User user,
-                    String email,
-                    String phoneNumber,
                     LocalDateTime createdAt) {
-        this.user = user;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.createdAt = createdAt;
+        setUser(user);
+        setCreatedAt(createdAt);
     }
 
     protected UserInfo() {
@@ -58,13 +54,17 @@ public class UserInfo {
     }
 
     public void setUser(User user) {
+        if (this.user == user) {
+            return;
+        }
+
         if (this.user != null) {
             this.user.setUserInfo(null);
         }
 
         this.user = user;
 
-        if (user != null) {
+        if (user != null && user.getUserInfo() != this) {
             user.setUserInfo(this);
         }
     }

@@ -38,23 +38,19 @@ public class Movie {
     private URL posterUrl;
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final Set<GenreMovie> genres = new HashSet<>();
+    private final Set<GenreMovie> genreMovie = new HashSet<>();
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
     private final Set<Session> sessions = new HashSet<>();
 
     public Movie(String title,
-                 String description,
                  Integer durationInMinutes,
                  LocalDateTime releaseDate,
-                 Rating rating,
-                 URL posterUrl) {
-        this.title = title;
-        this.description = description;
-        this.durationInMinutes = durationInMinutes;
-        this.releaseDate = releaseDate;
-        this.rating = rating;
-        this.posterUrl = posterUrl;
+                 Rating rating) {
+        setTitle(title);
+        setDurationInMinutes(durationInMinutes);
+        setReleaseDate(releaseDate);
+        setRating(rating);
     }
 
     protected Movie() {
@@ -113,8 +109,8 @@ public class Movie {
         this.posterUrl = posterUrl;
     }
 
-    public Set<GenreMovie> getGenres() {
-        return genres;
+    public Set<GenreMovie> getGenreMovie() {
+        return genreMovie;
     }
 
     public Set<Session> getSessions() {

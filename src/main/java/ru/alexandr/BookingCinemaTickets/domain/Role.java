@@ -19,10 +19,10 @@ public class Role {
     private String name;
 
     @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final Set<RoleUser> users = new HashSet<>();
+    private final Set<RoleUser> roleUser = new HashSet<>();
 
     public Role(String name) {
-        this.name = name;
+        setName(name);
     }
 
     protected Role() {
@@ -41,8 +41,8 @@ public class Role {
         this.name = name;
     }
 
-    public Set<RoleUser> getUsers() {
-        return users;
+    public Set<RoleUser> getRoleUser() {
+        return roleUser;
     }
 
     @Override

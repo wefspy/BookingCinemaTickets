@@ -36,10 +36,10 @@ public class SessionSeat {
                        Seat seat,
                        Double price,
                        SessionSeatStatus status) {
-        this.session = session;
-        this.seat = seat;
-        this.price = price;
-        this.status = status;
+        setSession(session);
+        setSeat(seat);
+        setPrice(price);
+        setStatus(status);
     }
 
     protected SessionSeat() {
@@ -87,13 +87,17 @@ public class SessionSeat {
     }
 
     public void setTicket(Ticket ticket) {
+        if (this.ticket == ticket) {
+            return;
+        }
+
         if (this.ticket != null) {
             this.ticket.setSessionSeat(null);
         }
 
         this.ticket = ticket;
 
-        if (ticket != null) {
+        if (ticket != null && ticket.getSessionSeat() != this) {
             ticket.setSessionSeat(this);
         }
     }

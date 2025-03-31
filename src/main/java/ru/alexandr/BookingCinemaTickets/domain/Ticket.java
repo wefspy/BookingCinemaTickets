@@ -41,11 +41,11 @@ public class Ticket {
                   LocalDateTime bookingTime,
                   String qrCode,
                   Boolean used) {
-        this.userInfo = userInfo;
-        this.sessionSeat = sessionSeat;
-        this.bookingTime = bookingTime;
-        this.qrCode = qrCode;
-        this.used = used;
+        setUserInfo(userInfo);
+        setSessionSeat(sessionSeat);
+        setBookingTime(bookingTime);
+        setQrCode(qrCode);
+        setUsed(used);
     }
 
     protected Ticket() {
@@ -77,13 +77,17 @@ public class Ticket {
     }
 
     public void setSessionSeat(SessionSeat sessionSeat) {
+        if (this.sessionSeat == sessionSeat) {
+            return;
+        }
+
         if (this.sessionSeat != null) {
             this.sessionSeat.setTicket(null);
         }
 
         this.sessionSeat = sessionSeat;
 
-        if (sessionSeat != null) {
+        if (sessionSeat != null && sessionSeat.getTicket() != this) {
             sessionSeat.setTicket(this);
         }
     }
