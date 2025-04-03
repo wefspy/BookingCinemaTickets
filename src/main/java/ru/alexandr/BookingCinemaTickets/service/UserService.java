@@ -22,7 +22,7 @@ public class UserService {
     public void createUserWithInfo(String username, String password, String email, String phoneNumber) {
         User user = new User(
                 username,
-                PasswordHashService.getHash(password)
+                password
         );
 
         UserInfo userInfo = new UserInfo(
