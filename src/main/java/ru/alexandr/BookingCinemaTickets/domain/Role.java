@@ -7,27 +7,24 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = "genres")
-public class Genre {
+@Table(name = "roles")
+public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "genre_id")
+    @Column(name = "role_id")
     private Long id;
 
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    @Column(name = "description")
-    private String description;
+    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final Set<RoleUser> roleUser = new HashSet<>();
 
-    @OneToMany(mappedBy = "genre", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final Set<GenreMovie> genreMovie = new HashSet<>();
-
-    public Genre(String name) {
+    public Role(String name) {
         setName(name);
     }
 
-    protected Genre() {
+    protected Role() {
 
     }
 
@@ -43,16 +40,8 @@ public class Genre {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Set<GenreMovie> getGenreMovie() {
-        return genreMovie;
+    public Set<RoleUser> getRoleUser() {
+        return roleUser;
     }
 
     @Override
@@ -60,8 +49,9 @@ public class Genre {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Genre genre = (Genre) o;
-        return Objects.equals(getId(), genre.getId());
+        Role role = (Role) o;
+
+        return Objects.equals(getId(), role.getId());
     }
 
     @Override
@@ -71,10 +61,9 @@ public class Genre {
 
     @Override
     public String toString() {
-        return "Genre{" +
+        return "Role{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
                 '}';
     }
 }
