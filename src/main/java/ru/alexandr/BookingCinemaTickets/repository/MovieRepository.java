@@ -5,8 +5,7 @@ import ru.alexandr.BookingCinemaTickets.domain.Movie;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
-public interface MovieRepository extends CrudRepository<Movie, UUID> {
+public interface MovieRepository extends CrudRepository<Movie, Long> {
     List<Movie> findByReleaseDateBetween(LocalDateTime startDate, LocalDateTime endDate);
 }

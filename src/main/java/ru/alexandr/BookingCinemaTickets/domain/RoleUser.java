@@ -3,18 +3,17 @@ package ru.alexandr.BookingCinemaTickets.domain;
 import jakarta.persistence.*;
 
 import java.util.Objects;
-import java.util.UUID;
 
 @Entity
 @Table(name = "roles_users")
 public class RoleUser {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "roles_users_id")
-    private UUID id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "username", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,7 +30,7 @@ public class RoleUser {
 
     }
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 

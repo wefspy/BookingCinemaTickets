@@ -3,15 +3,14 @@ package ru.alexandr.BookingCinemaTickets.domain;
 import jakarta.persistence.*;
 
 import java.util.Objects;
-import java.util.UUID;
 
 @Entity
 @Table(name = "genres_movies")
 public class GenreMovie {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "genres_movies_id")
-    private UUID id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "movie_id", nullable = false)
@@ -31,7 +30,7 @@ public class GenreMovie {
 
     }
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 

@@ -8,15 +8,14 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @Table(name = "movies")
 public class Movie {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "movie_id")
-    private UUID id;
+    private Long id;
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -57,7 +56,7 @@ public class Movie {
 
     }
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 

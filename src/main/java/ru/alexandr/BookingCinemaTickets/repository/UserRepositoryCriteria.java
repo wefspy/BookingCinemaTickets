@@ -6,7 +6,6 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Root;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import ru.alexandr.BookingCinemaTickets.domain.Role;
 import ru.alexandr.BookingCinemaTickets.domain.RoleUser;
@@ -19,7 +18,7 @@ public class UserRepositoryCriteria implements UserRepositoryCustom {
 
     private final EntityManager entityManager;
 
-    public UserRepositoryCriteria(@Autowired EntityManager entityManager) {
+    public UserRepositoryCriteria(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 

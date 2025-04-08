@@ -2,12 +2,10 @@ package ru.alexandr.BookingCinemaTickets.repository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.transaction.annotation.Transactional;
 import ru.alexandr.BookingCinemaTickets.domain.Role;
 import ru.alexandr.BookingCinemaTickets.domain.RoleUser;
 import ru.alexandr.BookingCinemaTickets.domain.User;
@@ -56,7 +54,7 @@ class UserRepositoryTest {
 
     @Test
     void findUsersByRoleName_ShouldReturnUsersWithGivenRole() {
-        List<User> admins = userRepository.findUserByRoleName(roleAdmin.getName());
+        List<User> admins = userRepository.findByRoleName(roleAdmin.getName());
 
         assertThat(admins).hasSize(1)
                 .extracting(User::getUsername)
@@ -65,7 +63,7 @@ class UserRepositoryTest {
 
     @Test
     void findUsersByRoleName_ShouldReturnEmptyList_WhenNoUsersWithRole() {
-        List<User> moderators = userRepository.findUserByRoleName("MODERATOR");
+        List<User> moderators = userRepository.findByRoleName("MODERATOR");
 
         assertThat(moderators).isEmpty();
     }

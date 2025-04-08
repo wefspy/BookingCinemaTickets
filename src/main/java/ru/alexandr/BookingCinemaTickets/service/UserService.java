@@ -1,6 +1,5 @@
 package ru.alexandr.BookingCinemaTickets.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.alexandr.BookingCinemaTickets.domain.User;
@@ -14,7 +13,7 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public UserService(@Autowired UserRepository userRepository) {
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 

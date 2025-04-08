@@ -5,15 +5,14 @@ import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @Table(name = "genres")
 public class Genre {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "genre_id")
-    private UUID id;
+    private Long id;
 
     @Column(name = "name", nullable = false, unique = true)
     private String name;
@@ -32,7 +31,7 @@ public class Genre {
 
     }
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 

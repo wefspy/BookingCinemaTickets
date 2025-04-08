@@ -4,15 +4,14 @@ import jakarta.persistence.*;
 import ru.alexandr.BookingCinemaTickets.domain.enums.SessionSeatStatus;
 
 import java.util.Objects;
-import java.util.UUID;
 
 @Entity
 @Table(name = "session_seats")
 public class SessionSeat {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "session_seats_id")
-    private UUID id;
+    private Long id;
 
     @Column(name = "price", nullable = false)
     private Double price;
@@ -46,7 +45,7 @@ public class SessionSeat {
 
     }
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 

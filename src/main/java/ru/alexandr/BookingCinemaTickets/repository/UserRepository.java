@@ -6,9 +6,8 @@ import ru.alexandr.BookingCinemaTickets.domain.User;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
-public interface UserRepository extends CrudRepository<User, UUID> {
+public interface UserRepository extends CrudRepository<User, Long> {
     Optional<User> findByUsername(String username);
 
     @Query("SELECT u " +
@@ -16,5 +15,5 @@ public interface UserRepository extends CrudRepository<User, UUID> {
             "JOIN u.roleUser ru " +
             "JOIN ru.role r " +
             "WHERE r.name = :roleName")
-    List<User> findUserByRoleName(String roleName);
+    List<User> findByRoleName(String roleName);
 }

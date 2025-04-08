@@ -6,15 +6,14 @@ import ru.alexandr.BookingCinemaTickets.domain.enums.SoundSystem;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @Table(name = "halls")
 public class Hall {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "hall_id")
-    private UUID id;
+    private Long id;
 
     @Column(name = "name", nullable = false, unique = true)
     private String name;
@@ -39,7 +38,7 @@ public class Hall {
 
     }
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 

@@ -6,15 +6,14 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @Table(name = "sessions")
 public class Session {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "session_id")
-    private UUID id;
+    private Long id;
 
     @Column(name = "start_time", nullable = false)
     private LocalDateTime startTime;
@@ -42,7 +41,7 @@ public class Session {
 
     }
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 

@@ -10,8 +10,13 @@ import java.util.Set;
 @Entity
 @Table(name = "users")
 public class User {
+
     @Id
-    @Column(name = "username")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "user_id")
+    private Long id;
+
+    @Column(name = "username", nullable = false, unique = true)
     private String username;
 
     @Column(name = "password_hash", nullable = false)
@@ -25,29 +30,41 @@ public class User {
 
     public User(String username,
                 String password) {
-        this.username = username;
-        setPassword(password);
+        setUsername(username);
+        setPasswordHash(password);
     }
 
     protected User() {
 
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public String getUsername() {
         return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPasswordHash() {
         return passwordHash;
     }
 
-    public boolean setPassword(String oldPassword, String newPassword) {
+    public boolean setPasswordHash(String oldPassword, String newPassword) {
         if (!equalsPassword(oldPassword)) {
             return false;
         }
 
-        setPassword(newPassword);
+        setPasswordHash(newPassword);
         return true;
+    }
+
+    public boolean equalsPassword(String password) {
+        return BCrypt.checkpw(password, getPasswordHash());
     }
 
     public UserInfo getUserInfo() {
@@ -81,27 +98,24 @@ public class User {
         }
         User user = (User) o;
 
-        return Objects.equals(getUsername(), user.getUsername());
+        return Objects.equals(getId(), user.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getUsername());
+        return Objects.hash(getId());
     }
 
     @Override
     public String toString() {
         return "User{" +
-                "username='" + username + '\'' +
+                "id=" + id +
+                ", username='" + username + '\'' +
                 ", passwordHash='" + passwordHash + '\'' +
                 '}';
     }
 
-    private void setPassword(String newPassword) {
+    private void setPasswordHash(String newPassword) {
         this.passwordHash = BCrypt.hashpw(newPassword, BCrypt.gensalt());
-    }
-
-    private boolean equalsPassword(String password) {
-        return BCrypt.checkpw(password, getPasswordHash());
     }
 }

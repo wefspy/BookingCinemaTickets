@@ -5,15 +5,14 @@ import ru.alexandr.BookingCinemaTickets.domain.enums.PaymentStatus;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
-import java.util.UUID;
 
 @Entity
 @Table(name = "payments")
 public class Payment {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "payment_id")
-    private UUID id;
+    private Long id;
 
     @Column(name = "amount", nullable = false)
     private Double amount;
@@ -49,7 +48,7 @@ public class Payment {
 
     }
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 

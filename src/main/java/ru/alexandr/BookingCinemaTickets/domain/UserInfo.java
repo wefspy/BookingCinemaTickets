@@ -6,15 +6,13 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @Table(name = "users_info")
 public class UserInfo {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "user_id")
-    private UUID id;
+    private Long id;
 
     @Column(name = "email")
     private String email;
@@ -26,7 +24,8 @@ public class UserInfo {
     private LocalDateTime createdAt;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "username", nullable = false, unique = true)
+    @MapsId
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
     @OneToMany(mappedBy = "userInfo", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -45,7 +44,7 @@ public class UserInfo {
 
     }
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 

@@ -6,15 +6,14 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @Table(name = "tickets")
 public class Ticket {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "ticket_id")
-    private UUID id;
+    private Long id;
 
     @Column(name = "booking_time", nullable = false)
     private LocalDateTime bookingTime;
@@ -52,7 +51,7 @@ public class Ticket {
 
     }
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
