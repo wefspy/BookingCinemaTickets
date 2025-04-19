@@ -10,6 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.alexandr.BookingCinemaTickets.dto.ApiErrorDto;
+import ru.alexandr.BookingCinemaTickets.dto.RoleDto;
 import ru.alexandr.BookingCinemaTickets.dto.UserProfileInfoDto;
 import ru.alexandr.BookingCinemaTickets.dto.UserRegisterDto;
 import ru.alexandr.BookingCinemaTickets.exception.RoleNotFoundException;
@@ -25,7 +26,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = {UserController.class, ExceptionControllerAdvice.class})
+@WebMvcTest
 class UserControllerUnitTest {
 
     private final String createUserWithInfoUrl = "/api/register";
@@ -48,8 +49,9 @@ class UserControllerUnitTest {
         );
 
         UserProfileInfoDto userProfileInfoDto = new UserProfileInfoDto(
+                1L,
                 userRegisterDto.username(),
-                Set.of("ADMIN"),
+                Set.of(new RoleDto(1L, "ROLE_USER")),
                 userRegisterDto.email(),
                 userRegisterDto.phoneNumber(),
                 userRegisterDto.createdAt().format(DateTimeFormatter.ISO_DATE_TIME)

@@ -10,6 +10,7 @@ import ru.alexandr.BookingCinemaTickets.domain.Role;
 import ru.alexandr.BookingCinemaTickets.domain.RoleUser;
 import ru.alexandr.BookingCinemaTickets.domain.User;
 import ru.alexandr.BookingCinemaTickets.domain.UserInfo;
+import ru.alexandr.BookingCinemaTickets.dto.RoleDto;
 import ru.alexandr.BookingCinemaTickets.dto.UserProfileInfoDto;
 import ru.alexandr.BookingCinemaTickets.exception.UserNotFoundException;
 import ru.alexandr.BookingCinemaTickets.mapper.UserProfileInfoMapper;
@@ -61,8 +62,9 @@ public class UserInfoServiceUnitTest {
         );
 
         userProfileInfoDto = new UserProfileInfoDto(
+                1L,
                 user.getUsername(),
-                Set.of(role.getName()),
+                Set.of(new RoleDto(1L, role.getName())),
                 userInfo.getEmail(),
                 userInfo.getPhoneNumber(),
                 userInfo.getCreatedAt().toString()

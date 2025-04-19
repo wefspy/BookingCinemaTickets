@@ -8,14 +8,16 @@ import ru.alexandr.BookingCinemaTickets.domain.UserInfo;
 import ru.alexandr.BookingCinemaTickets.dto.UserProfileInfoDto;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 public class UserProfileInfoMapper {
     private final DateTimeConfig config;
+    private final RoleMapper roleMapper;
 
-    public UserProfileInfoMapper(DateTimeConfig config) {
+    public UserProfileInfoMapper(DateTimeConfig config,
+                                 RoleMapper roleMapper) {
         this.config = config;
+        this.roleMapper = roleMapper;
     }
 
     public UserProfileInfoDto toDto(
@@ -23,13 +25,10 @@ public class UserProfileInfoMapper {
             UserInfo userInfo,
             Set<Role> roles
     ) {
-        Set<String> roleStrings = roles.stream()
-                .map(Role::getName)
-                .collect(Collectors.toSet());
-
         return new UserProfileInfoDto(
+                user.getId(),
                 user.getUsername(),
-                roleStrings,
+                roleMapper.getRoleDtos(roles),
                 userInfo.getEmail(),
                 userInfo.getPhoneNumber(),
                 userInfo.getCreatedAt().format(config.getFormatter())

@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.alexandr.BookingCinemaTickets.domain.Role;
 import ru.alexandr.BookingCinemaTickets.domain.User;
 import ru.alexandr.BookingCinemaTickets.domain.UserInfo;
+import ru.alexandr.BookingCinemaTickets.dto.RoleDto;
 import ru.alexandr.BookingCinemaTickets.dto.UserProfileInfoDto;
 import ru.alexandr.BookingCinemaTickets.dto.UserRegisterDto;
 import ru.alexandr.BookingCinemaTickets.exception.RoleNotFoundException;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -77,8 +79,10 @@ class UserServiceUnitTest {
 
 
         userProfileInfoDto = new UserProfileInfoDto(
+                1L,
                 userRegisterDto.username(),
-                Set.of(roleAdmin.getName(), roleUser.getName()),
+                Set.of(new RoleDto(roleAdmin.getId(), roleAdmin.getName()),
+                        new RoleDto(roleUser.getId(), roleUser.getName())),
                 userRegisterDto.email(),
                 userRegisterDto.phoneNumber(),
                 userRegisterDto.createdAt().format(DateTimeFormatter.ISO_DATE_TIME)
@@ -93,8 +97,10 @@ class UserServiceUnitTest {
         when(userProfileInfoMapper.toDto(any(User.class), any(UserInfo.class), anySet()))
                 .thenReturn(userProfileInfoDto);
 
-        userService.createUserWithInfo(userRegisterDto);
-        
+        UserProfileInfoDto userProfileActual = userService.createUserWithInfo(userRegisterDto);
+
+        assertThat(userProfileActual).isEqualTo(userProfileInfoDto);
+
         verify(userRepository)
                 .existsByUsername(userRegisterDto.username());
         verify(userRepository, times(1))

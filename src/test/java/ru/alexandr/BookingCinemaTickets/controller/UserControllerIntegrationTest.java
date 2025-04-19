@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import ru.alexandr.BookingCinemaTickets.domain.Role;
+import ru.alexandr.BookingCinemaTickets.dto.RoleDto;
 import ru.alexandr.BookingCinemaTickets.dto.UserProfileInfoDto;
 import ru.alexandr.BookingCinemaTickets.dto.UserRegisterDto;
 import ru.alexandr.BookingCinemaTickets.repository.RoleRepository;
@@ -72,6 +73,10 @@ public class UserControllerIntegrationTest {
         UserProfileInfoDto userProfileInfoDto = objectMapper.readValue(response, UserProfileInfoDto.class);
 
         assertThat(userProfileInfoDto.userName()).isEqualTo(userRegisterDto.username());
+        assertThat(userProfileInfoDto.roles())
+                .hasSize(1)
+                .extracting(RoleDto::id)
+                .contains(role.getId());
         assertThat(userProfileInfoDto.email()).isEqualTo(userRegisterDto.email());
         assertThat(userProfileInfoDto.phoneNumber()).isEqualTo(userRegisterDto.phoneNumber());
     }

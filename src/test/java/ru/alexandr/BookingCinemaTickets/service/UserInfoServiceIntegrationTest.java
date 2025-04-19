@@ -10,6 +10,7 @@ import ru.alexandr.BookingCinemaTickets.domain.Role;
 import ru.alexandr.BookingCinemaTickets.domain.RoleUser;
 import ru.alexandr.BookingCinemaTickets.domain.User;
 import ru.alexandr.BookingCinemaTickets.domain.UserInfo;
+import ru.alexandr.BookingCinemaTickets.dto.RoleDto;
 import ru.alexandr.BookingCinemaTickets.dto.UserProfileInfoDto;
 import ru.alexandr.BookingCinemaTickets.exception.UserNotFoundException;
 import ru.alexandr.BookingCinemaTickets.repository.RoleRepository;
@@ -77,7 +78,9 @@ class UserInfoServiceIntegrationTest {
 
         assertThat(userProfileInfoDto.userName()).isEqualTo(user.getUsername());
 
-        assertThat(userProfileInfoDto.roles()).contains(role.getName());
+        assertThat(userProfileInfoDto.roles())
+                .extracting(RoleDto::id)
+                .contains(role.getId());
 
         assertThat(userProfileInfoDto.email()).isEqualTo(userInfo.getEmail());
         assertThat(userProfileInfoDto.phoneNumber()).isEqualTo(userInfo.getPhoneNumber());

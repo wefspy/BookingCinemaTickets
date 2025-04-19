@@ -10,6 +10,7 @@ import ru.alexandr.BookingCinemaTickets.domain.Role;
 import ru.alexandr.BookingCinemaTickets.domain.RoleUser;
 import ru.alexandr.BookingCinemaTickets.domain.User;
 import ru.alexandr.BookingCinemaTickets.domain.UserInfo;
+import ru.alexandr.BookingCinemaTickets.dto.RoleDto;
 import ru.alexandr.BookingCinemaTickets.dto.UserProfileInfoDto;
 import ru.alexandr.BookingCinemaTickets.dto.UserRegisterDto;
 import ru.alexandr.BookingCinemaTickets.exception.UsernameAlreadyTakenException;
@@ -91,8 +92,9 @@ class UserServiceIntegrationTest {
 
         assertThat(userProfileInfoDto.userName()).isEqualTo(userRegisterDto.username());
         assertThat(userProfileInfoDto.roles())
-                .contains(roleAdmin.getName())
-                .hasSize(1);
+                .hasSize(1)
+                .extracting(RoleDto::id)
+                .contains(roleAdmin.getId());
         assertThat(userProfileInfoDto.email()).isEqualTo(userRegisterDto.email());
         assertThat(userProfileInfoDto.phoneNumber()).isEqualTo(userRegisterDto.phoneNumber());
         assertThat(userProfileInfoDto.createdAt())
