@@ -12,6 +12,7 @@ import ru.alexandr.BookingCinemaTickets.domain.UserInfo;
 import ru.alexandr.BookingCinemaTickets.dto.UserProfileInfoDto;
 import ru.alexandr.BookingCinemaTickets.dto.UserRegisterDto;
 import ru.alexandr.BookingCinemaTickets.exception.RoleNotFoundException;
+import ru.alexandr.BookingCinemaTickets.exception.UsernameAlreadyTakenException;
 import ru.alexandr.BookingCinemaTickets.mapper.UserProfileInfoMapper;
 import ru.alexandr.BookingCinemaTickets.repository.RoleRepository;
 import ru.alexandr.BookingCinemaTickets.repository.RoleUserRepository;
@@ -86,13 +87,16 @@ class UserServiceUnitTest {
 
     @Test
     void createUserWithInfo_ShouldSaveUserWithRolesAndUserInfo() {
+        when(userRepository.existsByUsername(userRegisterDto.username())).thenReturn(false);
         when(roleRepository.findAllById(userRegisterDto.roleIds()))
                 .thenReturn(roles);
         when(userProfileInfoMapper.toDto(any(User.class), any(UserInfo.class), anySet()))
                 .thenReturn(userProfileInfoDto);
 
         userService.createUserWithInfo(userRegisterDto);
-
+        
+        verify(userRepository)
+                .existsByUsername(userRegisterDto.username());
         verify(userRepository, times(1))
                 .save(any(User.class));
         verify(roleRepository, times(1))
@@ -101,6 +105,14 @@ class UserServiceUnitTest {
                 .saveAll(anyIterable());
         verify(userProfileInfoMapper, times(1))
                 .toDto(any(User.class), any(UserInfo.class), eq(roles));
+    }
+
+    @Test
+    void createUserWithInfo_ShouldThrowException_WhenUsernameAlreadyTaken() {
+        when(userRepository.existsByUsername(userRegisterDto.username())).thenReturn(true);
+
+        assertThatThrownBy(() -> userService.createUserWithInfo(userRegisterDto))
+                .isInstanceOf(UsernameAlreadyTakenException.class);
     }
 
     @Test

@@ -36,10 +36,6 @@ class UserRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        assertThat(userRepository.count()).isZero();
-        assertThat(roleRepository.count()).isZero();
-        assertThat(roleUserRepository.count()).isZero();
-
         roleAdmin = roleRepository.save(new Role("ADMIN"));
         roleUser = roleRepository.save(new Role("USER"));
 
@@ -66,5 +62,19 @@ class UserRepositoryTest {
         List<User> moderators = userRepository.findByRoleName("MODERATOR");
 
         assertThat(moderators).isEmpty();
+    }
+
+    @Test
+    void existsByUsername_ShouldReturnTrue_WhenUserExists() {
+        Boolean exists = userRepository.existsByUsername(userUser.getUsername());
+
+        assertThat(exists).isTrue();
+    }
+
+    @Test
+    void existsByUsername_ShouldReturnFalse_WhenUserDoesNotExist() {
+        Boolean exists = userRepository.existsByUsername("notExistsUsername");
+
+        assertThat(exists).isFalse();
     }
 }

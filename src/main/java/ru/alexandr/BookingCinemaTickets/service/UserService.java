@@ -9,6 +9,7 @@ import ru.alexandr.BookingCinemaTickets.domain.UserInfo;
 import ru.alexandr.BookingCinemaTickets.dto.UserProfileInfoDto;
 import ru.alexandr.BookingCinemaTickets.dto.UserRegisterDto;
 import ru.alexandr.BookingCinemaTickets.exception.RoleNotFoundException;
+import ru.alexandr.BookingCinemaTickets.exception.UsernameAlreadyTakenException;
 import ru.alexandr.BookingCinemaTickets.mapper.UserProfileInfoMapper;
 import ru.alexandr.BookingCinemaTickets.repository.RoleRepository;
 import ru.alexandr.BookingCinemaTickets.repository.RoleUserRepository;
@@ -40,6 +41,12 @@ public class UserService {
 
     @Transactional
     public UserProfileInfoDto createUserWithInfo(UserRegisterDto userRegisterDto) {
+        if (userRepository.existsByUsername(userRegisterDto.username())) {
+            throw new UsernameAlreadyTakenException(
+                    String.format("Имя пользователя %s уже занято", userRegisterDto.username())
+            );
+        }
+
         User user = new User(
                 userRegisterDto.username(),
                 userRegisterDto.password()

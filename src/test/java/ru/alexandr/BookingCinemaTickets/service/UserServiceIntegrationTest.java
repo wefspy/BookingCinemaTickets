@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
 import ru.alexandr.BookingCinemaTickets.config.DateTimeConfig;
 import ru.alexandr.BookingCinemaTickets.domain.Role;
 import ru.alexandr.BookingCinemaTickets.domain.RoleUser;
@@ -13,6 +12,7 @@ import ru.alexandr.BookingCinemaTickets.domain.User;
 import ru.alexandr.BookingCinemaTickets.domain.UserInfo;
 import ru.alexandr.BookingCinemaTickets.dto.UserProfileInfoDto;
 import ru.alexandr.BookingCinemaTickets.dto.UserRegisterDto;
+import ru.alexandr.BookingCinemaTickets.exception.UsernameAlreadyTakenException;
 import ru.alexandr.BookingCinemaTickets.repository.RoleRepository;
 import ru.alexandr.BookingCinemaTickets.repository.RoleUserRepository;
 import ru.alexandr.BookingCinemaTickets.repository.UserInfoRepository;
@@ -156,7 +156,7 @@ class UserServiceIntegrationTest {
         );
 
         assertThatException().isThrownBy(() -> userService.createUserWithInfo(dtoWithDuplicateUserName))
-                .isInstanceOf(DataIntegrityViolationException.class);
+                .isInstanceOf(UsernameAlreadyTakenException.class);
 
         assertThat(userRepository.count()).isEqualTo(1);
         assertThat(userInfoRepository.count()).isEqualTo(1);

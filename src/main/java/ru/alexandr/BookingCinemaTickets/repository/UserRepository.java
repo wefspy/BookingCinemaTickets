@@ -18,4 +18,6 @@ public interface UserRepository extends CrudRepository<User, Long> {
             "JOIN ru.role r " +
             "WHERE r.name = :roleName")
     List<User> findByRoleName(String roleName);
+
+    Boolean existsByUsername(String username);
 }
