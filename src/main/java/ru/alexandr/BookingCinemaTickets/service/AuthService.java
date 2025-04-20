@@ -22,14 +22,14 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
-public class UserService {
+public class AuthService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final RoleUserRepository roleUserRepository;
     private final UserProfileInfoMapper userProfileInfoMapper;
 
-    public UserService(UserRepository userRepository,
+    public AuthService(UserRepository userRepository,
                        RoleRepository roleRepository,
                        RoleUserRepository roleUserRepository,
                        UserProfileInfoMapper userProfileInfoMapper) {

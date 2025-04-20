@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class UserControllerIntegrationTest {
+public class AuthControllerIntegrationTest {
 
     private final String createUserWithInfoUrl = "/api/register";
     @Autowired

@@ -12,14 +12,14 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.alexandr.BookingCinemaTickets.dto.ApiErrorDto;
 import ru.alexandr.BookingCinemaTickets.dto.UserProfileInfoDto;
 import ru.alexandr.BookingCinemaTickets.dto.UserRegisterDto;
-import ru.alexandr.BookingCinemaTickets.service.UserService;
+import ru.alexandr.BookingCinemaTickets.service.AuthService;
 
 @RestController
-public class UserController {
-    private final UserService userService;
+public class AuthController {
+    private final AuthService authService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
     }
 
     @Operation(summary = "Регистрация пользователя")
@@ -37,7 +37,7 @@ public class UserController {
     })
     @PostMapping("/api/register")
     public ResponseEntity<UserProfileInfoDto> createUserWithInfo(@Valid @RequestBody UserRegisterDto userRegisterDto) {
-        UserProfileInfoDto userProfileInfoDto = userService.createUserWithInfo(userRegisterDto);
+        UserProfileInfoDto userProfileInfoDto = authService.createUserWithInfo(userRegisterDto);
         return ResponseEntity.status(200)
                 .body(userProfileInfoDto);
     }

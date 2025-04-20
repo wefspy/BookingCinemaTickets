@@ -30,10 +30,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceUnitTest {
+class AuthServiceUnitTest {
 
     @InjectMocks
-    private UserService userService;
+    private AuthService authService;
 
     @Mock
     private UserRepository userRepository;
@@ -97,7 +97,7 @@ class UserServiceUnitTest {
         when(userProfileInfoMapper.toDto(any(User.class), any(UserInfo.class), anySet()))
                 .thenReturn(userProfileInfoDto);
 
-        UserProfileInfoDto userProfileActual = userService.createUserWithInfo(userRegisterDto);
+        UserProfileInfoDto userProfileActual = authService.createUserWithInfo(userRegisterDto);
 
         assertThat(userProfileActual).isEqualTo(userProfileInfoDto);
 
@@ -117,7 +117,7 @@ class UserServiceUnitTest {
     void createUserWithInfo_ShouldThrowException_WhenUsernameAlreadyTaken() {
         when(userRepository.existsByUsername(userRegisterDto.username())).thenReturn(true);
 
-        assertThatThrownBy(() -> userService.createUserWithInfo(userRegisterDto))
+        assertThatThrownBy(() -> authService.createUserWithInfo(userRegisterDto))
                 .isInstanceOf(UsernameAlreadyTakenException.class);
     }
 
@@ -126,7 +126,7 @@ class UserServiceUnitTest {
         when(roleRepository.findAllById(userRegisterDto.roleIds()))
                 .thenReturn(Set.of(roleAdmin));
 
-        assertThatThrownBy(() -> userService.createUserWithInfo(userRegisterDto))
+        assertThatThrownBy(() -> authService.createUserWithInfo(userRegisterDto))
                 .isInstanceOf(RoleNotFoundException.class);
 
         verify(userRepository).save(any(User.class));

@@ -28,9 +28,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
 
 @SpringBootTest
-class UserServiceIntegrationTest {
+class AuthServiceIntegrationTest {
     @Autowired
-    private UserService userService;
+    private AuthService authService;
 
     @Autowired
     private UserRepository userRepository;
@@ -72,7 +72,7 @@ class UserServiceIntegrationTest {
 
     @Test
     void createUserWithInfo_ShouldSaveUserWithRolesAndUserInfo() {
-        userService.createUserWithInfo(userRegisterDto);
+        authService.createUserWithInfo(userRegisterDto);
 
         Optional<User> savedUser = userRepository.findByUsername(userRegisterDto.username());
         Optional<UserInfo> savedUserInfo = userInfoRepository.findByEmail(userRegisterDto.email());
@@ -86,7 +86,7 @@ class UserServiceIntegrationTest {
 
     @Test
     void createUserWithInfo_ShouldReturnCorrectUserProfileInfoDto() {
-        UserProfileInfoDto userProfileInfoDto = userService.createUserWithInfo(userRegisterDto);
+        UserProfileInfoDto userProfileInfoDto = authService.createUserWithInfo(userRegisterDto);
 
         assertThat(userProfileInfoDto).isNotNull();
 
@@ -103,7 +103,7 @@ class UserServiceIntegrationTest {
 
     @Test
     void createUserWithInfo_ShouldSaveCorrectUser() {
-        userService.createUserWithInfo(userRegisterDto);
+        authService.createUserWithInfo(userRegisterDto);
 
         Optional<User> userOptional = userRepository.findByUsername(userRegisterDto.username());
 
@@ -117,7 +117,7 @@ class UserServiceIntegrationTest {
 
     @Test
     void createUserWithInfo_ShouldSaveCorrectUserInfo() {
-        userService.createUserWithInfo(userRegisterDto);
+        authService.createUserWithInfo(userRegisterDto);
 
         Optional<UserInfo> userInfoOptional = userInfoRepository.findByEmail(userRegisterDto.email());
 
@@ -131,7 +131,7 @@ class UserServiceIntegrationTest {
 
     @Test
     void createUserWithInfo_ShouldSaveCorrectRoles() {
-        userService.createUserWithInfo(userRegisterDto);
+        authService.createUserWithInfo(userRegisterDto);
 
         Optional<User> savedUser = userRepository.findByUsername(userRegisterDto.username());
         assertThat(savedUser).isPresent();
@@ -146,7 +146,7 @@ class UserServiceIntegrationTest {
 
     @Test
     void createUserWithInfo_ShouldRollbackTransaction_OnConstraintViolation() {
-        userService.createUserWithInfo(userRegisterDto);
+        authService.createUserWithInfo(userRegisterDto);
 
         UserRegisterDto dtoWithDuplicateUserName = new UserRegisterDto(
                 userRegisterDto.username(),
@@ -157,7 +157,7 @@ class UserServiceIntegrationTest {
                 LocalDateTime.now()
         );
 
-        assertThatException().isThrownBy(() -> userService.createUserWithInfo(dtoWithDuplicateUserName))
+        assertThatException().isThrownBy(() -> authService.createUserWithInfo(dtoWithDuplicateUserName))
                 .isInstanceOf(UsernameAlreadyTakenException.class);
 
         assertThat(userRepository.count()).isEqualTo(1);

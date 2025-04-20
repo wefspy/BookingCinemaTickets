@@ -15,7 +15,7 @@ import ru.alexandr.BookingCinemaTickets.dto.UserProfileInfoDto;
 import ru.alexandr.BookingCinemaTickets.dto.UserRegisterDto;
 import ru.alexandr.BookingCinemaTickets.exception.RoleNotFoundException;
 import ru.alexandr.BookingCinemaTickets.exception.UsernameAlreadyTakenException;
-import ru.alexandr.BookingCinemaTickets.service.UserService;
+import ru.alexandr.BookingCinemaTickets.service.AuthService;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest
-class UserControllerUnitTest {
+class AuthControllerUnitTest {
 
     private final String createUserWithInfoUrl = "/api/register";
     @Autowired
@@ -35,7 +35,7 @@ class UserControllerUnitTest {
     @Autowired
     private ObjectMapper objectMapper;
     @MockitoBean
-    private UserService userService;
+    private AuthService authService;
 
     @Test
     void createUserWithInfo_ShouldReturnUserProfile() throws Exception {
@@ -57,7 +57,7 @@ class UserControllerUnitTest {
                 userRegisterDto.createdAt().format(DateTimeFormatter.ISO_DATE_TIME)
         );
 
-        when(userService.createUserWithInfo(userRegisterDto)).thenReturn(userProfileInfoDto);
+        when(authService.createUserWithInfo(userRegisterDto)).thenReturn(userProfileInfoDto);
 
         MvcResult result = mockMvc.perform(post(createUserWithInfoUrl)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -125,7 +125,7 @@ class UserControllerUnitTest {
                 null
         );
 
-        when(userService.createUserWithInfo(userRegisterDto))
+        when(authService.createUserWithInfo(userRegisterDto))
                 .thenThrow(new RoleNotFoundException(""));
 
         MvcResult result = mockMvc.perform(post(createUserWithInfoUrl)
@@ -154,7 +154,7 @@ class UserControllerUnitTest {
                 null
         );
 
-        when(userService.createUserWithInfo(userRegisterDto))
+        when(authService.createUserWithInfo(userRegisterDto))
                 .thenThrow(new UsernameAlreadyTakenException(""));
 
         MvcResult result = mockMvc.perform(post(createUserWithInfoUrl)
@@ -183,7 +183,7 @@ class UserControllerUnitTest {
                 null
         );
 
-        when(userService.createUserWithInfo(userRegisterDto))
+        when(authService.createUserWithInfo(userRegisterDto))
                 .thenThrow(new IllegalArgumentException(""));
 
         MvcResult result = mockMvc.perform(post(createUserWithInfoUrl)
