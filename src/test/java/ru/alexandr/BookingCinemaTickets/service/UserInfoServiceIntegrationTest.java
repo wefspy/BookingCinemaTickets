@@ -5,6 +5,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ru.alexandr.BookingCinemaTickets.config.DateTimeConfig;
 import ru.alexandr.BookingCinemaTickets.domain.Role;
 import ru.alexandr.BookingCinemaTickets.domain.RoleUser;
@@ -18,6 +21,7 @@ import ru.alexandr.BookingCinemaTickets.repository.RoleUserRepository;
 import ru.alexandr.BookingCinemaTickets.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -41,6 +45,7 @@ class UserInfoServiceIntegrationTest {
     private UserInfo userInfo;
     private Role role;
     private RoleUser roleUser;
+    private UserProfileInfoDto userProfileInfoDto;
 
     @BeforeEach
     void setUp() {
@@ -63,6 +68,15 @@ class UserInfoServiceIntegrationTest {
                 role
         );
         roleUserRepository.save(roleUser);
+
+        userProfileInfoDto = new UserProfileInfoDto(
+                user.getId(),
+                user.getUsername(),
+                Set.of(new RoleDto(role.getId(), role.getName())),
+                userInfo.getEmail(),
+                userInfo.getPhoneNumber(),
+                userInfo.getCreatedAt().format(dateTimeConfig.getFormatter())
+        );
     }
 
     @AfterEach
@@ -73,23 +87,25 @@ class UserInfoServiceIntegrationTest {
     }
 
     @Test
-    void getUserProfileInfo_shouldReturnUserProfileInfo_whenGetCorrectUserId() {
-        UserProfileInfoDto userProfileInfoDto = userInfoService.getUserProfileInfo(user.getId());
+    void getUserProfileInfo_ShouldReturnUserProfileInfo_whenGetCorrectUserId() {
+        UserProfileInfoDto result = userInfoService.getUserProfileInfo(user.getId());
 
-        assertThat(userProfileInfoDto.userName()).isEqualTo(user.getUsername());
-
-        assertThat(userProfileInfoDto.roles())
-                .extracting(RoleDto::id)
-                .contains(role.getId());
-
-        assertThat(userProfileInfoDto.email()).isEqualTo(userInfo.getEmail());
-        assertThat(userProfileInfoDto.phoneNumber()).isEqualTo(userInfo.getPhoneNumber());
-        assertThat(userProfileInfoDto.createdAt()).isEqualTo(userInfo.getCreatedAt().format(dateTimeConfig.getFormatter()));
+        assertThat(result).isEqualTo(userProfileInfoDto);
     }
 
     @Test
-    void getUserProfileInfo_shouldReturnUserNotFoundException_whenGetNotExistUserId() {
+    void getUserProfileInfo_ShouldReturnUserNotFoundException_whenGetNotExistUserId() {
         assertThatThrownBy(() -> userInfoService.getUserProfileInfo(Long.MIN_VALUE))
                 .isInstanceOf(UserNotFoundException.class);
+    }
+
+    @Test
+    void getUserProfileInfoPage_ShouldReturnUserProfileInfoPage() {
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Page<UserProfileInfoDto> result = userInfoService.getUserProfileInfoPage(pageable);
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().getFirst()).isEqualTo(userProfileInfoDto);
     }
 }
