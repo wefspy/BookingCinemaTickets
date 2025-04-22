@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html
+        lang="en"
+        xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>User List</title>
+    <link rel="stylesheet" th:href="@{/css/usersList.css}">
+</head>
+<body>
+<h1>User List</h1>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Roles</th>
+        <th>Email</th>
+        <th>PhoneNumber</th>
+        <th>CreatedAt</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="user : ${users}">
+        <td th:text="${user.userId()}">1</td>
+        <td th:text="${user.userName()}">username</td>
+        <td th:text="${user.roles()}">{USER, SUPPORT}</td>
+        <td th:text="${user.email()}">email@gmail.com</td>
+        <td th:text="${user.phoneNumber()}">+79111333777</td>
+        <td th:text="${user.createdAt()}">22-04-2025</td>
+    </tr>
+    </tbody>
+</table>
+
+<nav>
+    <span th:text="'Page ' + (${page.number} + 1) + ' of ' + ${page.totalPages}">Page X</span>
+    <div class="pagination-buttons">
+        <a th:href="@{|/custom/users/view/list?page=${page.number - 1}&size=${page.size}|}"
+           th:if="${!page.first}">Previous</a>
+        <a th:href="@{|/custom/users/view/list?page=${page.number + 1}&size=${page.size}|}"
+           th:if="${!page.last}">Next</a>
+    </div>
+</nav>
+
+</body>
+</html>

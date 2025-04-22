@@ -1,36 +1,62 @@
 package ru.alexandr.BookingCinemaTickets.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import ru.alexandr.BookingCinemaTickets.domain.Role;
+import ru.alexandr.BookingCinemaTickets.domain.RoleUser;
 import ru.alexandr.BookingCinemaTickets.domain.User;
-import ru.alexandr.BookingCinemaTickets.domain.UserInfo;
+import ru.alexandr.BookingCinemaTickets.dto.UserProfileInfoDto;
+import ru.alexandr.BookingCinemaTickets.exception.UserNotFoundException;
+import ru.alexandr.BookingCinemaTickets.mapper.UserProfileInfoMapper;
+import ru.alexandr.BookingCinemaTickets.repository.UserInfoRepository;
 import ru.alexandr.BookingCinemaTickets.repository.UserRepository;
 
-import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
-
     private final UserRepository userRepository;
+    private final UserProfileInfoMapper userProfileInfoMapper;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserInfoRepository userInfoRepository,
+                       UserRepository userRepository,
+                       UserProfileInfoMapper userProfileInfoMapper) {
         this.userRepository = userRepository;
+        this.userProfileInfoMapper = userProfileInfoMapper;
     }
 
-    @Transactional
-    public void createUserWithInfo(String username, String password, String email, String phoneNumber) {
-        User user = new User(
-                username,
-                password
-        );
+    public UserProfileInfoDto getUserProfileInfo(Long userId) {
+        Optional<User> userInfoOptional = userRepository.findByIdWithInfoAndRoles(userId);
 
-        UserInfo userInfo = new UserInfo(
+        if (userInfoOptional.isEmpty()) {
+            throw new UserNotFoundException(String.format("Пользователь с id %s не найден", userId));
+        }
+
+        User user = userInfoOptional.get();
+        Set<Role> roles = user.getRoleUser().stream()
+                .map(RoleUser::getRole)
+                .collect(Collectors.toSet());
+
+        return userProfileInfoMapper.toDto(
                 user,
-                LocalDateTime.now()
+                user.getUserInfo(),
+                roles
         );
-        userInfo.setEmail(email);
-        userInfo.setPhoneNumber(phoneNumber);
+    }
 
-        userRepository.save(user);
+    public Page<UserProfileInfoDto> getUserProfileInfoPage(Pageable pageable) {
+        Page<User> userPage = userRepository.findAllWithInfoAndRoles(pageable);
+
+        return userPage.map(user -> userProfileInfoMapper.toDto(
+                user,
+                user.getUserInfo(),
+                user.getRoleUser()
+                        .stream()
+                        .map(RoleUser::getRole)
+                        .collect(Collectors.toSet())
+        ));
     }
 }
