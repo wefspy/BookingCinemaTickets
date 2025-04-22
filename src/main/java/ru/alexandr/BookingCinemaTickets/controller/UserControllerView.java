@@ -12,7 +12,7 @@ import ru.alexandr.BookingCinemaTickets.dto.UserProfileInfoDto;
 import ru.alexandr.BookingCinemaTickets.service.UserService;
 
 @Controller
-@RequestMapping("/custom/users/view")
+@RequestMapping("/view/users")
 public class UserControllerView {
     private final UserService userService;
 
@@ -20,7 +20,7 @@ public class UserControllerView {
         this.userService = userService;
     }
 
-    @GetMapping("/list")
+    @GetMapping
     public String userListView(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
