@@ -17,13 +17,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-public class UserInfoService {
+public class UserService {
     private final UserRepository userRepository;
     private final UserProfileInfoMapper userProfileInfoMapper;
 
-    public UserInfoService(UserInfoRepository userInfoRepository,
-                           UserRepository userRepository,
-                           UserProfileInfoMapper userProfileInfoMapper) {
+    public UserService(UserInfoRepository userInfoRepository,
+                       UserRepository userRepository,
+                       UserProfileInfoMapper userProfileInfoMapper) {
         this.userRepository = userRepository;
         this.userProfileInfoMapper = userProfileInfoMapper;
     }

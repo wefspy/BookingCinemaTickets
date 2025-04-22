@@ -27,10 +27,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
-class UserInfoServiceIntegrationTest {
+class UserServiceIntegrationTest {
 
     @Autowired
-    private UserInfoService userInfoService;
+    private UserService userService;
 
     @Autowired
     private DateTimeConfig dateTimeConfig;
@@ -88,14 +88,14 @@ class UserInfoServiceIntegrationTest {
 
     @Test
     void getUserProfileInfo_ShouldReturnUserProfileInfo_whenGetCorrectUserId() {
-        UserProfileInfoDto result = userInfoService.getUserProfileInfo(user.getId());
+        UserProfileInfoDto result = userService.getUserProfileInfo(user.getId());
 
         assertThat(result).isEqualTo(userProfileInfoDto);
     }
 
     @Test
     void getUserProfileInfo_ShouldReturnUserNotFoundException_whenGetNotExistUserId() {
-        assertThatThrownBy(() -> userInfoService.getUserProfileInfo(Long.MIN_VALUE))
+        assertThatThrownBy(() -> userService.getUserProfileInfo(Long.MIN_VALUE))
                 .isInstanceOf(UserNotFoundException.class);
     }
 
@@ -103,7 +103,7 @@ class UserInfoServiceIntegrationTest {
     void getUserProfileInfoPage_ShouldReturnUserProfileInfoPage() {
         Pageable pageable = PageRequest.of(0, 10);
 
-        Page<UserProfileInfoDto> result = userInfoService.getUserProfileInfoPage(pageable);
+        Page<UserProfileInfoDto> result = userService.getUserProfileInfoPage(pageable);
 
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent().getFirst()).isEqualTo(userProfileInfoDto);

@@ -31,10 +31,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class UserInfoServiceUnitTest {
+public class UserServiceUnitTest {
 
     @InjectMocks
-    private UserInfoService userInfoService;
+    private UserService userService;
 
     @Mock
     private UserRepository userRepository;
@@ -81,7 +81,7 @@ public class UserInfoServiceUnitTest {
         when(userRepository.findByIdWithInfoAndRoles(user.getId())).thenReturn(Optional.of(user));
         when(userProfileInfoMapper.toDto(user, userInfo, Set.of(role))).thenReturn(userProfileInfoDto);
 
-        UserProfileInfoDto result = userInfoService.getUserProfileInfo(user.getId());
+        UserProfileInfoDto result = userService.getUserProfileInfo(user.getId());
 
         verify(userRepository).findByIdWithInfoAndRoles(user.getId());
         verify(userProfileInfoMapper).toDto(user, userInfo, Set.of(role));
@@ -93,7 +93,7 @@ public class UserInfoServiceUnitTest {
     void getUserProfileInfo_ShouldReturnUserNotFoundException_WhenGetNotExistUserId() {
         when(userRepository.findByIdWithInfoAndRoles(user.getId())).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userInfoService.getUserProfileInfo(user.getId()))
+        assertThatThrownBy(() -> userService.getUserProfileInfo(user.getId()))
                 .isInstanceOf(UserNotFoundException.class);
 
         verify(userRepository).findByIdWithInfoAndRoles(user.getId());
@@ -110,7 +110,7 @@ public class UserInfoServiceUnitTest {
         when(userProfileInfoMapper.toDto(user, userInfo, Set.of(role)))
                 .thenReturn(userProfileInfoDto);
 
-        Page<UserProfileInfoDto> result = userInfoService.getUserProfileInfoPage(pageable);
+        Page<UserProfileInfoDto> result = userService.getUserProfileInfoPage(pageable);
 
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent().getFirst()).isEqualTo(userProfileInfoDto);
