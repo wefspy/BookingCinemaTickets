@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = AuthController.class)
 class AuthControllerUnitTest {
 
-    private final String createUserWithInfoUrl = "/api/register";
+    private final String createUserWithInfoUrl = "/api/auth/register";
     @Autowired
     private MockMvc mockMvc;
     @Autowired

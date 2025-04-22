@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.alexandr.BookingCinemaTickets.dto.ApiErrorDto;
 import ru.alexandr.BookingCinemaTickets.dto.UserProfileInfoDto;
@@ -15,6 +16,7 @@ import ru.alexandr.BookingCinemaTickets.dto.UserRegisterDto;
 import ru.alexandr.BookingCinemaTickets.service.AuthService;
 
 @RestController
+@RequestMapping("/api/auth")
 public class AuthController {
     private final AuthService authService;
 
@@ -35,7 +37,7 @@ public class AuthController {
     @ApiResponse(responseCode = "409", description = "Указанный username уже занят", content = {
             @Content(mediaType = "application/json", schema = @Schema(implementation = ApiErrorDto.class))
     })
-    @PostMapping("/api/register")
+    @PostMapping("/register")
     public ResponseEntity<UserProfileInfoDto> createUserWithInfo(@Valid @RequestBody UserRegisterDto userRegisterDto) {
         UserProfileInfoDto userProfileInfoDto = authService.createUserWithInfo(userRegisterDto);
         return ResponseEntity.status(200)
