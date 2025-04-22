@@ -6,6 +6,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ru.alexandr.BookingCinemaTickets.domain.Role;
 import ru.alexandr.BookingCinemaTickets.domain.RoleUser;
 import ru.alexandr.BookingCinemaTickets.domain.User;
@@ -14,9 +18,10 @@ import ru.alexandr.BookingCinemaTickets.dto.RoleDto;
 import ru.alexandr.BookingCinemaTickets.dto.UserProfileInfoDto;
 import ru.alexandr.BookingCinemaTickets.exception.UserNotFoundException;
 import ru.alexandr.BookingCinemaTickets.mapper.UserProfileInfoMapper;
-import ru.alexandr.BookingCinemaTickets.repository.UserInfoRepository;
+import ru.alexandr.BookingCinemaTickets.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -32,7 +37,7 @@ public class UserInfoServiceUnitTest {
     private UserInfoService userInfoService;
 
     @Mock
-    private UserInfoRepository userInfoRepository;
+    private UserRepository userRepository;
     @Mock
     private UserProfileInfoMapper userProfileInfoMapper;
 
@@ -72,26 +77,45 @@ public class UserInfoServiceUnitTest {
     }
 
     @Test
-    void getUserProfileInfo_shouldReturnUserProfileInfo_whenGetCorrectUserId() {
-        when(userInfoRepository.findById(user.getId())).thenReturn(Optional.of(userInfo));
+    void getUserProfileInfo_ShouldReturnUserProfileInfo_WhenGetCorrectUserId() {
+        when(userRepository.findByIdWithInfoAndRoles(user.getId())).thenReturn(Optional.of(user));
         when(userProfileInfoMapper.toDto(user, userInfo, Set.of(role))).thenReturn(userProfileInfoDto);
 
         UserProfileInfoDto result = userInfoService.getUserProfileInfo(user.getId());
 
-        verify(userInfoRepository).findById(user.getId());
+        verify(userRepository).findByIdWithInfoAndRoles(user.getId());
         verify(userProfileInfoMapper).toDto(user, userInfo, Set.of(role));
 
         assertThat(result).isEqualTo(userProfileInfoDto);
     }
 
     @Test
-    void getUserProfileInfo_shouldReturnUserNotFoundException_whenGetNotExistUserId() {
-        when(userInfoRepository.findById(user.getId())).thenReturn(Optional.empty());
+    void getUserProfileInfo_ShouldReturnUserNotFoundException_WhenGetNotExistUserId() {
+        when(userRepository.findByIdWithInfoAndRoles(user.getId())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userInfoService.getUserProfileInfo(user.getId()))
                 .isInstanceOf(UserNotFoundException.class);
 
-        verify(userInfoRepository).findById(user.getId());
+        verify(userRepository).findByIdWithInfoAndRoles(user.getId());
         verify(userProfileInfoMapper, never()).toDto(any(), any(), any());
+    }
+
+    @Test
+    void getUserProfileInfoPage_ShouldReturnUserProfileInfoPage() {
+        Page<User> userPage = new PageImpl<>(List.of(user));
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(userRepository.findAllWithInfoAndRoles(pageable))
+                .thenReturn(userPage);
+        when(userProfileInfoMapper.toDto(user, userInfo, Set.of(role)))
+                .thenReturn(userProfileInfoDto);
+
+        Page<UserProfileInfoDto> result = userInfoService.getUserProfileInfoPage(pageable);
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().getFirst()).isEqualTo(userProfileInfoDto);
+
+        verify(userRepository).findAllWithInfoAndRoles(pageable);
+        verify(userProfileInfoMapper).toDto(user, userInfo, Set.of(role));
     }
 }
