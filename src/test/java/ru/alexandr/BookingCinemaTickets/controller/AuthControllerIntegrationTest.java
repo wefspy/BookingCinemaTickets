@@ -10,12 +10,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import ru.alexandr.BookingCinemaTickets.domain.Role;
-import ru.alexandr.BookingCinemaTickets.dto.RoleDto;
-import ru.alexandr.BookingCinemaTickets.dto.UserProfileInfoDto;
-import ru.alexandr.BookingCinemaTickets.dto.UserRegisterDto;
-import ru.alexandr.BookingCinemaTickets.repository.RoleRepository;
-import ru.alexandr.BookingCinemaTickets.repository.UserRepository;
+import ru.alexandr.BookingCinemaTickets.application.dto.RoleDto;
+import ru.alexandr.BookingCinemaTickets.application.dto.UserProfileInfoDto;
+import ru.alexandr.BookingCinemaTickets.application.dto.UserRegisterDto;
+import ru.alexandr.BookingCinemaTickets.domain.model.Role;
+import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.RoleRepository;
+import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.Set;

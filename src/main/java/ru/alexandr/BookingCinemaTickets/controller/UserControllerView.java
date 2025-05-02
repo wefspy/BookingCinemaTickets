@@ -8,8 +8,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import ru.alexandr.BookingCinemaTickets.dto.UserProfileInfoDto;
-import ru.alexandr.BookingCinemaTickets.service.UserService;
+import ru.alexandr.BookingCinemaTickets.application.dto.UserProfileInfoDto;
+import ru.alexandr.BookingCinemaTickets.application.service.UserService;
 
 @Controller
 @RequestMapping("/view/users")
