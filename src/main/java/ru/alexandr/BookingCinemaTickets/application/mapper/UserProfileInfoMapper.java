@@ -7,7 +7,7 @@ import ru.alexandr.BookingCinemaTickets.domain.model.User;
 import ru.alexandr.BookingCinemaTickets.domain.model.UserInfo;
 import ru.alexandr.BookingCinemaTickets.infrastructure.config.DateTimeConfig;
 
-import java.util.Set;
+import java.util.Collection;
 
 @Component
 public class UserProfileInfoMapper {
@@ -23,7 +23,7 @@ public class UserProfileInfoMapper {
     public UserProfileInfoDto toDto(
             User user,
             UserInfo userInfo,
-            Set<Role> roles
+            Collection<Role> roles
     ) {
         return new UserProfileInfoDto(
                 user.getId(),

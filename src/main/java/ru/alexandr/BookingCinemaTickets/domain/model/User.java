@@ -1,7 +1,6 @@
 package ru.alexandr.BookingCinemaTickets.domain.model;
 
 import jakarta.persistence.*;
-import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -53,17 +52,8 @@ public class User {
         return passwordHash;
     }
 
-    public boolean setPasswordHash(String oldPassword, String newPassword) {
-        if (!equalsPassword(oldPassword)) {
-            return false;
-        }
-
-        setPasswordHash(newPassword);
-        return true;
-    }
-
-    public boolean equalsPassword(String password) {
-        return BCrypt.checkpw(password, getPasswordHash());
+    public void setPasswordHash(String newPasswordHash) {
+        this.passwordHash = newPasswordHash;
     }
 
     public UserInfo getUserInfo() {
@@ -112,9 +102,5 @@ public class User {
                 ", username='" + username + '\'' +
                 ", passwordHash='" + passwordHash + '\'' +
                 '}';
-    }
-
-    private void setPasswordHash(String newPassword) {
-        this.passwordHash = BCrypt.hashpw(newPassword, BCrypt.gensalt());
     }
 }

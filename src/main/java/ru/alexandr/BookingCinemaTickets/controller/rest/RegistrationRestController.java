@@ -1,4 +1,4 @@
-package ru.alexandr.BookingCinemaTickets.controller;
+package ru.alexandr.BookingCinemaTickets.controller.rest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -10,18 +10,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.alexandr.BookingCinemaTickets.dto.ApiErrorDto;
-import ru.alexandr.BookingCinemaTickets.dto.UserProfileInfoDto;
-import ru.alexandr.BookingCinemaTickets.dto.UserRegisterDto;
-import ru.alexandr.BookingCinemaTickets.service.AuthService;
+import ru.alexandr.BookingCinemaTickets.application.dto.ApiErrorDto;
+import ru.alexandr.BookingCinemaTickets.application.dto.RegisterDto;
+import ru.alexandr.BookingCinemaTickets.application.dto.UserProfileInfoDto;
+import ru.alexandr.BookingCinemaTickets.application.service.RegistrationService;
 
 @RestController
-@RequestMapping("/api/auth")
-public class AuthController {
-    private final AuthService authService;
+@RequestMapping("/api/registration")
+public class RegistrationRestController {
+    private final RegistrationService registrationService;
 
-    public AuthController(AuthService authService) {
-        this.authService = authService;
+    public RegistrationRestController(RegistrationService registrationService) {
+        this.registrationService = registrationService;
     }
 
     @Operation(summary = "Регистрация пользователя")
@@ -37,9 +37,12 @@ public class AuthController {
     @ApiResponse(responseCode = "409", description = "Указанный username уже занят", content = {
             @Content(mediaType = "application/json", schema = @Schema(implementation = ApiErrorDto.class))
     })
-    @PostMapping("/register")
-    public ResponseEntity<UserProfileInfoDto> createUserWithInfo(@Valid @RequestBody UserRegisterDto userRegisterDto) {
-        UserProfileInfoDto userProfileInfoDto = authService.createUserWithInfo(userRegisterDto);
+    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера", content = {
+            @Content(mediaType = "application/json", schema = @Schema(implementation = ApiErrorDto.class))
+    })
+    @PostMapping
+    public ResponseEntity<UserProfileInfoDto> createUserWithInfo(@Valid @RequestBody RegisterDto registerDto) {
+        UserProfileInfoDto userProfileInfoDto = registrationService.register(registerDto);
         return ResponseEntity.status(200)
                 .body(userProfileInfoDto);
     }

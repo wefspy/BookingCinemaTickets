@@ -1,11 +1,11 @@
 package ru.alexandr.BookingCinemaTickets.application.dto;
 
-import java.util.Set;
+import java.util.Collection;
 
 public record UserProfileInfoDto(
         Long userId,
         String userName,
-        Set<RoleDto> roles,
+        Collection<RoleDto> roles,
         String email,
         String phoneNumber,
         String createdAt

@@ -1,98 +1,66 @@
 package ru.alexandr.BookingCinemaTickets.application.service;
 
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import ru.alexandr.BookingCinemaTickets.application.dto.UserProfileInfoDto;
-import ru.alexandr.BookingCinemaTickets.application.dto.UserRegisterDto;
-import ru.alexandr.BookingCinemaTickets.application.exception.RoleNotFoundException;
-import ru.alexandr.BookingCinemaTickets.application.exception.UsernameAlreadyTakenException;
-import ru.alexandr.BookingCinemaTickets.application.mapper.UserProfileInfoMapper;
-import ru.alexandr.BookingCinemaTickets.domain.model.Role;
-import ru.alexandr.BookingCinemaTickets.domain.model.RoleUser;
+import ru.alexandr.BookingCinemaTickets.application.dto.LoginRequestDto;
+import ru.alexandr.BookingCinemaTickets.application.dto.LoginResponseDto;
+import ru.alexandr.BookingCinemaTickets.application.exception.UserNotFoundException;
+import ru.alexandr.BookingCinemaTickets.application.mapper.AccessTokenInputMapper;
 import ru.alexandr.BookingCinemaTickets.domain.model.User;
-import ru.alexandr.BookingCinemaTickets.domain.model.UserInfo;
-import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.RoleRepository;
-import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.RoleUserRepository;
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.UserRepository;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import ru.alexandr.BookingCinemaTickets.infrastructure.security.UserDetailsImpl;
+import ru.alexandr.BookingCinemaTickets.infrastructure.security.jwt.JwtTokenFactory;
+import ru.alexandr.BookingCinemaTickets.infrastructure.security.jwt.dto.AccessTokenInput;
+import ru.alexandr.BookingCinemaTickets.infrastructure.security.jwt.parser.RefreshTokenParser;
 
 @Service
 public class AuthService {
-
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenFactory jwtTokenFactory;
+    private final RefreshTokenParser refreshTokenParser;
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-    private final RoleUserRepository roleUserRepository;
-    private final UserProfileInfoMapper userProfileInfoMapper;
+    private final AccessTokenInputMapper accessTokenInputMapper;
 
-    public AuthService(UserRepository userRepository,
-                       RoleRepository roleRepository,
-                       RoleUserRepository roleUserRepository,
-                       UserProfileInfoMapper userProfileInfoMapper) {
+    public AuthService(AuthenticationManager authenticationManager,
+                       JwtTokenFactory jwtTokenFactory,
+                       RefreshTokenParser refreshTokenParser,
+                       UserRepository userRepository,
+                       AccessTokenInputMapper accessTokenInputMapper) {
+        this.authenticationManager = authenticationManager;
+        this.jwtTokenFactory = jwtTokenFactory;
+        this.refreshTokenParser = refreshTokenParser;
         this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.roleUserRepository = roleUserRepository;
-        this.userProfileInfoMapper = userProfileInfoMapper;
+        this.accessTokenInputMapper = accessTokenInputMapper;
     }
 
-    @Transactional
-    public UserProfileInfoDto createUserWithInfo(UserRegisterDto userRegisterDto) {
-        if (userRepository.existsByUsername(userRegisterDto.username())) {
-            throw new UsernameAlreadyTakenException(
-                    String.format("Имя пользователя %s уже занято", userRegisterDto.username())
-            );
-        }
-
-        User user = new User(
-                userRegisterDto.username(),
-                userRegisterDto.password()
+    public LoginResponseDto login(LoginRequestDto request) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.username(), request.password())
         );
 
-        UserInfo userInfo = new UserInfo(
-                user,
-                userRegisterDto.createdAt() == null ? LocalDateTime.now() : userRegisterDto.createdAt()
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        AccessTokenInput accessTokenInput = accessTokenInputMapper.from(userDetails);
+
+        return new LoginResponseDto(
+                jwtTokenFactory.generateAccessToken(accessTokenInput),
+                jwtTokenFactory.generateRefreshToken(accessTokenInput.userId())
         );
-        if (userRegisterDto.email() != null) {
-            userInfo.setEmail(userRegisterDto.email());
-        }
-        if (userRegisterDto.phoneNumber() != null) {
-            userInfo.setPhoneNumber(userRegisterDto.phoneNumber());
-        }
+    }
 
-        userRepository.save(user);
+    public LoginResponseDto refresh(String refreshToken) {
+        Long userId = refreshTokenParser.getUserId(refreshToken);
+        User user = userRepository.findByIdWithRoles(userId)
+                .orElseThrow(() -> new UserNotFoundException(
+                        String.format("В токен зашит id %s пользователя, которого не существует", userId))
+                );
 
-        Set<Role> roles = StreamSupport
-                .stream(roleRepository.findAllById(userRegisterDto.roleIds()).spliterator(), false)
-                .collect(Collectors.toSet());
+        AccessTokenInput accessTokenInput = accessTokenInputMapper.from(user);
 
-        if (roles.size() != userRegisterDto.roleIds().size()) {
-            Set<Long> foundIds = roles.stream()
-                    .map(Role::getId)
-                    .collect(Collectors.toSet());
-
-            List<Long> notFoundIds = userRegisterDto.roleIds().stream()
-                    .filter(id -> !foundIds.contains(id))
-                    .toList();
-
-            throw new RoleNotFoundException(
-                    String.format("Роли с id %s не найдены", notFoundIds)
-            );
-        }
-
-        List<RoleUser> roleUsers = roles.stream()
-                .map(role -> new RoleUser(user, role))
-                .toList();
-
-        roleUserRepository.saveAll(roleUsers);
-
-        return userProfileInfoMapper.toDto(
-                user,
-                userInfo,
-                roles
+        return new LoginResponseDto(
+                jwtTokenFactory.generateAccessToken(accessTokenInput),
+                jwtTokenFactory.generateRefreshToken(accessTokenInput.userId())
         );
     }
 }

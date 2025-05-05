@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Список пользователей</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+<header class="bg-white shadow-md px-6 py-4 flex justify-between items-center">
+    <form th:action="@{/logout}" method="post">
+        <button type="submit"
+                class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition duration-200">
+            Выйти
+        </button>
+    </form>
+</header>
+
+<div class="container mx-auto py-10">
+    <h2 class="text-3xl font-bold mb-6 text-center">Список пользователей</h2>
+
+    <div class="overflow-x-auto bg-white rounded-xl shadow p-4">
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+            <thead class="bg-gray-100 text-gray-700">
+            <tr>
+                <th class="px-6 py-3 text-left font-medium uppercase tracking-wider rounded-tl-lg">ID</th>
+                <th class="px-6 py-3 text-left font-medium uppercase tracking-wider">Username</th>
+                <th class="px-6 py-3 text-left font-medium uppercase tracking-wider">Roles</th>
+                <th class="px-6 py-3 text-left font-medium uppercase tracking-wider">Email</th>
+                <th class="px-6 py-3 text-left font-medium uppercase tracking-wider">Phone</th>
+                <th class="px-6 py-3 text-left font-medium uppercase tracking-wider rounded-tr-lg">Created At</th>
+            </tr>
+            </thead>
+            <tbody th:if="${!users.isEmpty()}">
+            <tr th:each="user : ${users}" class="odd:bg-white even:bg-gray-50 hover:bg-gray-100 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap" th:text="${user.userId()}">1</td>
+                <td class="px-6 py-4 whitespace-nowrap truncate max-w-xs" th:text="${user.userName()}">username</td>
+                <td class="px-6 py-4 whitespace-nowrap" th:text="${user.roles()}">USER</td>
+                <td class="px-6 py-4 whitespace-nowrap truncate max-w-xs" th:text="${user.email()}">email@example.com</td>
+                <td class="px-6 py-4 whitespace-nowrap" th:text="${user.phoneNumber()}">+79111234567</td>
+                <td class="px-6 py-4 whitespace-nowrap" th:text="${user.createdAt()}">2025-04-22</td>
+            </tr>
+            </tbody>
+            <tbody th:if="${users.isEmpty()}">
+            <tr>
+                <td colspan="6" class="text-center py-4 text-gray-500">Список пуст</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <nav class="mt-6 flex items-center justify-between">
+        <span class="text-sm text-gray-600" th:text="'Страница ' + (${page.isEmpty() ? 0 : page.number + 1}) + ' из ' + ${page.totalPages}">
+            Страница X
+        </span>
+        <div class="space-x-2">
+            <a th:if="${!page.first}"
+               th:href="@{|/custom/users/view/list?page=${page.number - 1}&size=${page.size}|}"
+               class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Назад</a>
+            <a th:if="${!page.last}"
+               th:href="@{|/custom/users/view/list?page=${page.number + 1}&size=${page.size}|}"
+               class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Вперед</a>
+        </div>
+    </nav>
+</div>
+
+</body>
+</html>
