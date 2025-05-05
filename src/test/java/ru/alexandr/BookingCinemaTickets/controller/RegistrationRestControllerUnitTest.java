@@ -3,6 +3,7 @@ package ru.alexandr.BookingCinemaTickets.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -10,58 +11,61 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.alexandr.BookingCinemaTickets.application.dto.ApiErrorDto;
+import ru.alexandr.BookingCinemaTickets.application.dto.RegisterDto;
 import ru.alexandr.BookingCinemaTickets.application.dto.RoleDto;
 import ru.alexandr.BookingCinemaTickets.application.dto.UserProfileInfoDto;
-import ru.alexandr.BookingCinemaTickets.application.dto.UserRegisterDto;
 import ru.alexandr.BookingCinemaTickets.application.exception.RoleNotFoundException;
 import ru.alexandr.BookingCinemaTickets.application.exception.UsernameAlreadyTakenException;
-import ru.alexandr.BookingCinemaTickets.application.service.AuthService;
+import ru.alexandr.BookingCinemaTickets.application.service.RegistrationService;
+import ru.alexandr.BookingCinemaTickets.controller.rest.RegistrationRestController;
+import ru.alexandr.BookingCinemaTickets.infrastructure.security.jwt.JwtAuthenticationFilter;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Set;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = AuthController.class)
-class AuthControllerUnitTest {
+@WebMvcTest(controllers = RegistrationRestController.class)
+@AutoConfigureMockMvc(addFilters = false)
+class RegistrationRestControllerUnitTest {
+    private final String createUserWithInfoUrl = "/api/registration";
 
-    private final String createUserWithInfoUrl = "/api/auth/register";
     @Autowired
     private MockMvc mockMvc;
     @Autowired
     private ObjectMapper objectMapper;
     @MockitoBean
-    private AuthService authService;
+    private RegistrationService registrationService;
+    @MockitoBean
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Test
     void createUserWithInfo_ShouldReturnUserProfile() throws Exception {
-        UserRegisterDto userRegisterDto = new UserRegisterDto(
+        RegisterDto registerDto = new RegisterDto(
                 "username",
                 "securityPassword",
-                Set.of(1L),
                 "email@gmail.com",
-                "+79111222333",
-                LocalDateTime.now()
+                "+79111222333"
         );
 
         UserProfileInfoDto userProfileInfoDto = new UserProfileInfoDto(
                 1L,
-                userRegisterDto.username(),
-                Set.of(new RoleDto(1L, "ROLE_USER")),
-                userRegisterDto.email(),
-                userRegisterDto.phoneNumber(),
-                userRegisterDto.createdAt().format(DateTimeFormatter.ISO_DATE_TIME)
+                registerDto.username(),
+                List.of(new RoleDto(1L, "ROLE_USER")),
+                registerDto.email(),
+                registerDto.phoneNumber(),
+                LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
         );
 
-        when(authService.createUserWithInfo(userRegisterDto)).thenReturn(userProfileInfoDto);
+        when(registrationService.register(registerDto)).thenReturn(userProfileInfoDto);
 
         MvcResult result = mockMvc.perform(post(createUserWithInfoUrl)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userRegisterDto)))
+                        .content(objectMapper.writeValueAsString(registerDto)))
                 .andExpect(status().is(200))
                 .andReturn();
 
@@ -73,26 +77,22 @@ class AuthControllerUnitTest {
 
     @Test
     void createUserWithInfo_ShouldReturnUserProfile_WhenOptionalParametersNotSpecified() throws Exception {
-        UserRegisterDto userRegisterDto = new UserRegisterDto(
+        RegisterDto registerDto = new RegisterDto(
                 "username",
                 "securityPassword",
-                Set.of(1L),
-                null,
                 null,
                 null
         );
 
         mockMvc.perform(post(createUserWithInfoUrl)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userRegisterDto)))
+                        .content(objectMapper.writeValueAsString(registerDto)))
                 .andExpect(status().is(200));
     }
 
     @Test
     void createUserWithInfo_ShouldReturn400Code_WhenRequiredParametersNotSpecified() throws Exception {
-        UserRegisterDto userRegisterDto = new UserRegisterDto(
-                null,
-                null,
+        RegisterDto registerDto = new RegisterDto(
                 null,
                 null,
                 null,
@@ -101,7 +101,7 @@ class AuthControllerUnitTest {
 
         MvcResult result = mockMvc.perform(post(createUserWithInfoUrl)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userRegisterDto)))
+                        .content(objectMapper.writeValueAsString(registerDto)))
                 .andExpect(status().is(400))
                 .andReturn();
 
@@ -116,21 +116,19 @@ class AuthControllerUnitTest {
 
     @Test
     void createUserWithInfo_ShouldReturn404Code_WhenSpecifiedRoleIdNotFound() throws Exception {
-        UserRegisterDto userRegisterDto = new UserRegisterDto(
+        RegisterDto registerDto = new RegisterDto(
                 "username",
                 "securityPassword",
-                Set.of(1L),
-                null,
                 null,
                 null
         );
 
-        when(authService.createUserWithInfo(userRegisterDto))
+        when(registrationService.register(registerDto))
                 .thenThrow(new RoleNotFoundException(""));
 
         MvcResult result = mockMvc.perform(post(createUserWithInfoUrl)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userRegisterDto)))
+                        .content(objectMapper.writeValueAsString(registerDto)))
                 .andExpect(status().is(404))
                 .andReturn();
 
@@ -145,21 +143,19 @@ class AuthControllerUnitTest {
 
     @Test
     void createUserWithInfo_ShouldReturn409Code_WhenSpecifiedUsernameAlreadyTaken() throws Exception {
-        UserRegisterDto userRegisterDto = new UserRegisterDto(
+        RegisterDto registerDto = new RegisterDto(
                 "username",
                 "securityPassword",
-                Set.of(1L),
-                null,
                 null,
                 null
         );
 
-        when(authService.createUserWithInfo(userRegisterDto))
+        when(registrationService.register(registerDto))
                 .thenThrow(new UsernameAlreadyTakenException(""));
 
         MvcResult result = mockMvc.perform(post(createUserWithInfoUrl)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userRegisterDto)))
+                        .content(objectMapper.writeValueAsString(registerDto)))
                 .andExpect(status().is(409))
                 .andReturn();
 
@@ -174,21 +170,19 @@ class AuthControllerUnitTest {
 
     @Test
     void createUserWithInfo_ShouldReturn500Code_WhenThrowUnplannedException() throws Exception {
-        UserRegisterDto userRegisterDto = new UserRegisterDto(
+        RegisterDto registerDto = new RegisterDto(
                 "username",
                 "securityPassword",
-                Set.of(1L),
-                null,
                 null,
                 null
         );
 
-        when(authService.createUserWithInfo(userRegisterDto))
+        when(registrationService.register(registerDto))
                 .thenThrow(new IllegalArgumentException(""));
 
         MvcResult result = mockMvc.perform(post(createUserWithInfoUrl)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userRegisterDto)))
+                        .content(objectMapper.writeValueAsString(registerDto)))
                 .andExpect(status().is(500))
                 .andReturn();
 

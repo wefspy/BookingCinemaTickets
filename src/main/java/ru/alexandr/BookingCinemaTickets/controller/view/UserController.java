@@ -1,4 +1,4 @@
-package ru.alexandr.BookingCinemaTickets.controller;
+package ru.alexandr.BookingCinemaTickets.controller.view;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,11 +12,11 @@ import ru.alexandr.BookingCinemaTickets.application.dto.UserProfileInfoDto;
 import ru.alexandr.BookingCinemaTickets.application.service.UserService;
 
 @Controller
-@RequestMapping("/view/users")
-public class UserControllerView {
+@RequestMapping("/users")
+public class UserController {
     private final UserService userService;
 
-    public UserControllerView(UserService userService) {
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
@@ -31,6 +31,6 @@ public class UserControllerView {
         model.addAttribute("page", userPage);
         model.addAttribute("users", userPage.getContent());
 
-        return "usersList";
+        return "users";
     }
 }

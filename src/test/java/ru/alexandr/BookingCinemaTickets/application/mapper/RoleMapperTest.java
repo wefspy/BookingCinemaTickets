@@ -6,6 +6,7 @@ import ru.alexandr.BookingCinemaTickets.application.dto.RoleDto;
 import ru.alexandr.BookingCinemaTickets.domain.model.Role;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,7 +41,7 @@ class RoleMapperTest {
     void getRoleDtos_ShouldReturnCorrectRoleDtos() {
         Set<Role> roles = Set.of(roleAdmin, roleManager);
 
-        Set<RoleDto> dtos = roleMapper.getRoleDtos(roles);
+        Collection<RoleDto> dtos = roleMapper.getRoleDtos(roles);
 
         assertThat(dtos)
                 .hasSize(roles.size())

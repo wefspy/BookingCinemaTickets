@@ -15,6 +15,7 @@ import ru.alexandr.BookingCinemaTickets.domain.model.UserInfo;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,19 +60,42 @@ class UserRepositoryTest {
     }
 
     @Test
-    void findUsersByRoleName_ShouldReturnUsersWithGivenRole() {
-        List<User> admins = userRepository.findByRoleName(roleAdmin.getName());
+    void findByUsername_ShouldReturnUser_WhenGivenExistingUsername() {
+        Optional<User> user = userRepository.findByUsername(userUser.getUsername());
 
-        assertThat(admins).hasSize(1)
-                .extracting(User::getUsername)
-                .containsExactly(userAdmin.getUsername());
+        assertThat(user).isPresent();
     }
 
     @Test
-    void findUsersByRoleName_ShouldReturnEmptyList_WhenNoUsersWithRole() {
-        List<User> moderators = userRepository.findByRoleName("MODERATOR");
+    void findByUsername_ShouldReturnEmptyOptional_WhenGivenNotExistingUsername() {
+        Optional<User> user = userRepository.findByUsername("NotExistingUsername");
 
-        assertThat(moderators).isEmpty();
+        assertThat(user).isEmpty();
+    }
+
+    @Test
+    void findByUsernameWithRoles_ShouldReturnUser_WhenGivenExistingUsername() {
+        Optional<User> optionalUser = userRepository.findByUsernameWithRoles(userUser.getUsername());
+
+        assertThat(optionalUser).isPresent();
+
+        User user = optionalUser.get();
+
+        assertThat(user.getRoleUser())
+                .isNotNull()
+                .isNotEmpty()
+                .allMatch(Objects::nonNull);
+
+        assertThat(user.getRoleUser())
+                .extracting(RoleUser::getRole)
+                .allMatch(Objects::nonNull);
+    }
+
+    @Test
+    void findByUsernameWithRoles_ShouldReturnEmptyOptional_WhenGivenNotExistingUsername() {
+        Optional<User> optionalUser = userRepository.findByUsernameWithRoles("NotExistingUsername");
+
+        assertThat(optionalUser).isEmpty();
     }
 
     @Test
@@ -86,6 +110,22 @@ class UserRepositoryTest {
         Boolean exists = userRepository.existsByUsername("notExistsUsername");
 
         assertThat(exists).isFalse();
+    }
+
+    @Test
+    void findByRoleName_ShouldReturnUsersWithGivenRole() {
+        List<User> admins = userRepository.findByRoleName(roleAdmin.getName());
+
+        assertThat(admins).hasSize(1)
+                .extracting(User::getUsername)
+                .containsExactly(userAdmin.getUsername());
+    }
+
+    @Test
+    void findByRoleName_ShouldReturnEmptyList_WhenNoUsersWithRole() {
+        List<User> moderators = userRepository.findByRoleName("MODERATOR");
+
+        assertThat(moderators).isEmpty();
     }
 
     @Test
@@ -126,6 +166,31 @@ class UserRepositoryTest {
                 assertThat(roleUser.getRole()).isNotNull();
             });
         });
+    }
+
+    @Test
+    void findByIdWithRoles_ShouldReturnUserWithRoles_WhenGivenExistingId() {
+        Optional<User> optionalUser = userRepository.findByIdWithRoles(userAdmin.getId());
+
+        assertThat(optionalUser).isPresent();
+
+        User user = optionalUser.get();
+
+        assertThat(user.getRoleUser())
+                .isNotNull()
+                .isNotEmpty()
+                .allMatch(Objects::nonNull);
+
+        assertThat(user.getRoleUser())
+                .extracting(RoleUser::getRole)
+                .allMatch(Objects::nonNull);
+    }
+
+    @Test
+    void findByIdWithRoles_ShouldReturnEmptyOptional_WhenGivenNotExistingId() {
+        Optional<User> optionalUser = userRepository.findByIdWithRoles(Long.MIN_VALUE);
+
+        assertThat(optionalUser).isEmpty();
     }
 
     @Test

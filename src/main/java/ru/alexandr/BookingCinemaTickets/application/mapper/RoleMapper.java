@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import ru.alexandr.BookingCinemaTickets.application.dto.RoleDto;
 import ru.alexandr.BookingCinemaTickets.domain.model.Role;
 
-import java.util.Set;
+import java.util.Collection;
 import java.util.stream.Collectors;
 
 @Component
@@ -17,7 +17,7 @@ public class RoleMapper {
         );
     }
 
-    public Set<RoleDto> getRoleDtos(Set<Role> roles) {
+    public Collection<RoleDto> getRoleDtos(Collection<Role> roles) {
         return roles.stream()
                 .map(this::getRoleDto)
                 .collect(Collectors.toSet());

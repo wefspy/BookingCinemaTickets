@@ -13,6 +13,14 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
 
+    @EntityGraph(attributePaths = {
+            "roleUser.role"
+    })
+    @Query("SELECT u " +
+            "FROM User u " +
+            "WHERE u.username = :username")
+    Optional<User> findByUsernameWithRoles(String username);
+
     Boolean existsByUsername(String username);
 
     @Query("SELECT u " +
@@ -29,6 +37,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u " +
             "FROM User u ")
     Page<User> findAllWithInfoAndRoles(Pageable pageable);
+
+    @EntityGraph(attributePaths = {
+            "roleUser.role"
+    })
+    @Query("SELECT u " +
+            "FROM User u " +
+            "WHERE u.id = :id")
+    Optional<User> findByIdWithRoles(Long id);
 
     @EntityGraph(attributePaths = {
             "userInfo",

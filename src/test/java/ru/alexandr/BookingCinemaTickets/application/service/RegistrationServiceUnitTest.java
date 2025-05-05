@@ -6,10 +6,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import ru.alexandr.BookingCinemaTickets.application.dto.RegisterDto;
 import ru.alexandr.BookingCinemaTickets.application.dto.RoleDto;
 import ru.alexandr.BookingCinemaTickets.application.dto.UserProfileInfoDto;
-import ru.alexandr.BookingCinemaTickets.application.dto.UserRegisterDto;
-import ru.alexandr.BookingCinemaTickets.application.exception.RoleNotFoundException;
 import ru.alexandr.BookingCinemaTickets.application.exception.UsernameAlreadyTakenException;
 import ru.alexandr.BookingCinemaTickets.application.mapper.UserProfileInfoMapper;
 import ru.alexandr.BookingCinemaTickets.domain.model.Role;
@@ -22,6 +22,7 @@ import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.UserReposi
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,10 +31,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class AuthServiceUnitTest {
+class RegistrationServiceUnitTest {
 
     @InjectMocks
-    private AuthService authService;
+    private RegistrationService registrationService;
 
     @Mock
     private UserRepository userRepository;
@@ -43,94 +44,78 @@ class AuthServiceUnitTest {
     private RoleUserRepository roleUserRepository;
     @Mock
     private UserProfileInfoMapper userProfileInfoMapper;
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
-    private UserRegisterDto userRegisterDto;
-    private Role roleAdmin;
+    private RegisterDto registerDto;
     private Role roleUser;
     private Set<Role> roles;
     private UserProfileInfoDto userProfileInfoDto;
 
     @BeforeEach
     void setUp() {
-        roleAdmin = new Role("ADMIN");
-        roleUser = new Role("USER");
+        roleUser = new Role("ROLE_USER");
 
         try {
             Field fieldId = Role.class.getDeclaredField("id");
 
             fieldId.setAccessible(true);
 
-            fieldId.set(roleAdmin, 1L);
             fieldId.set(roleUser, 2L);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
 
-        roles = Set.of(roleAdmin, roleUser);
+        roles = Set.of(roleUser);
 
-        userRegisterDto = new UserRegisterDto(
+        registerDto = new RegisterDto(
                 "username",
                 "securityPassword",
-                Set.of(roleAdmin.getId(), roleUser.getId()),
                 "email@gmail.com",
-                "+79111333377",
-                LocalDateTime.now()
+                "+79111333377"
         );
 
 
         userProfileInfoDto = new UserProfileInfoDto(
                 1L,
-                userRegisterDto.username(),
-                Set.of(new RoleDto(roleAdmin.getId(), roleAdmin.getName()),
-                        new RoleDto(roleUser.getId(), roleUser.getName())),
-                userRegisterDto.email(),
-                userRegisterDto.phoneNumber(),
-                userRegisterDto.createdAt().format(DateTimeFormatter.ISO_DATE_TIME)
+                registerDto.username(),
+                Set.of(new RoleDto(roleUser.getId(), roleUser.getName())),
+                registerDto.email(),
+                registerDto.phoneNumber(),
+                LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
         );
     }
 
     @Test
-    void createUserWithInfo_ShouldSaveUserWithRolesAndUserInfo() {
-        when(userRepository.existsByUsername(userRegisterDto.username())).thenReturn(false);
-        when(roleRepository.findAllById(userRegisterDto.roleIds()))
-                .thenReturn(roles);
-        when(userProfileInfoMapper.toDto(any(User.class), any(UserInfo.class), anySet()))
+    void createUserWithInfo_ShouldSaveUserWithRolesAndInfo() {
+        when(userRepository.existsByUsername(registerDto.username()))
+                .thenReturn(false);
+        when(roleRepository.findAllByNameWithRoleUser(anyCollection()))
+                .thenReturn(List.of(roleUser));
+        when(userProfileInfoMapper.toDto(any(), any(), any()))
                 .thenReturn(userProfileInfoDto);
+        when(passwordEncoder.encode(registerDto.password()))
+                .thenReturn("hashPassword");
 
-        UserProfileInfoDto userProfileActual = authService.createUserWithInfo(userRegisterDto);
+        UserProfileInfoDto userProfileActual = registrationService.register(registerDto);
 
         assertThat(userProfileActual).isEqualTo(userProfileInfoDto);
 
         verify(userRepository)
-                .existsByUsername(userRegisterDto.username());
+                .existsByUsername(registerDto.username());
         verify(userRepository, times(1))
                 .save(any(User.class));
-        verify(roleRepository, times(1))
-                .findAllById(eq(userRegisterDto.roleIds()));
         verify(roleUserRepository, times(1))
                 .saveAll(anyIterable());
         verify(userProfileInfoMapper, times(1))
-                .toDto(any(User.class), any(UserInfo.class), eq(roles));
+                .toDto(any(User.class), any(UserInfo.class), anyCollection());
     }
 
     @Test
-    void createUserWithInfo_ShouldThrowException_WhenUsernameAlreadyTaken() {
-        when(userRepository.existsByUsername(userRegisterDto.username())).thenReturn(true);
+    void register_ShouldThrowException_WhenUsernameAlreadyTaken() {
+        when(userRepository.existsByUsername(registerDto.username())).thenReturn(true);
 
-        assertThatThrownBy(() -> authService.createUserWithInfo(userRegisterDto))
+        assertThatThrownBy(() -> registrationService.register(registerDto))
                 .isInstanceOf(UsernameAlreadyTakenException.class);
-    }
-
-    @Test
-    void createUserWithInfo_ShouldThrowException_WhenSomeRolesNotFound() {
-        when(roleRepository.findAllById(userRegisterDto.roleIds()))
-                .thenReturn(Set.of(roleAdmin));
-
-        assertThatThrownBy(() -> authService.createUserWithInfo(userRegisterDto))
-                .isInstanceOf(RoleNotFoundException.class);
-
-        verify(userRepository).save(any(User.class));
-        verify(roleUserRepository, never()).saveAll(any());
-        verify(userProfileInfoMapper, never()).toDto(any(), any(), any());
     }
 }
