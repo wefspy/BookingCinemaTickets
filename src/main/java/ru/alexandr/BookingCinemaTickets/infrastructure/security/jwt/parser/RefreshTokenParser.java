@@ -8,7 +8,7 @@ import ru.alexandr.BookingCinemaTickets.infrastructure.security.jwt.enums.JwtTok
 public class RefreshTokenParser extends AbstractJwtTokenParser {
     private final JwtTokenType jwtTokenType = JwtTokenType.REFRESH;
 
-    protected RefreshTokenParser(JwtKeyProvider jwtKeyProvider) {
+    public RefreshTokenParser(JwtKeyProvider jwtKeyProvider) {
         super(jwtKeyProvider);
     }
 
