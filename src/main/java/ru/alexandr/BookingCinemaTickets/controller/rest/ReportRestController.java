@@ -8,11 +8,11 @@ import ru.alexandr.BookingCinemaTickets.domain.model.Report;
 
 @RestController
 @RequestMapping("/api/reports")
-public class ReportController {
+public class ReportRestController {
 
     private final ReportService reportService;
 
-    public ReportController(ReportService reportService) {
+    public ReportRestController(ReportService reportService) {
         this.reportService = reportService;
     }
 
