@@ -7,10 +7,10 @@ import ru.alexandr.BookingCinemaTickets.application.dto.RegisterDto;
 import ru.alexandr.BookingCinemaTickets.application.service.RegistrationService;
 
 @Controller
-public class RegistrationControllerView {
+public class RegistrationController {
     private final RegistrationService registrationService;
 
-    public RegistrationControllerView(RegistrationService registrationService) {
+    public RegistrationController(RegistrationService registrationService) {
         this.registrationService = registrationService;
     }
 
