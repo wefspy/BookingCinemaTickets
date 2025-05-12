@@ -7,9 +7,9 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.alexandr.BookingCinemaTickets.dto.ApiErrorDto;
-import ru.alexandr.BookingCinemaTickets.exception.RoleNotFoundException;
-import ru.alexandr.BookingCinemaTickets.exception.UsernameAlreadyTakenException;
+import ru.alexandr.BookingCinemaTickets.application.dto.ApiErrorDto;
+import ru.alexandr.BookingCinemaTickets.application.exception.RoleNotFoundException;
+import ru.alexandr.BookingCinemaTickets.application.exception.UsernameAlreadyTakenException;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
