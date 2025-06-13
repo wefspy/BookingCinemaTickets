@@ -23,7 +23,7 @@ public class UserRepositoryCriteria implements UserRepositoryCustom {
     }
 
     @Override
-    public List<User> findUserByRoleName(String roleName) {
+    public List<User> findByRoleName(String roleName) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<User> criteriaQuery = criteriaBuilder.createQuery(User.class);
 
