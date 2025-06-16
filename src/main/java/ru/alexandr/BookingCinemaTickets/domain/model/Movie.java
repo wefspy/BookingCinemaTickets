@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import ru.alexandr.BookingCinemaTickets.domain.enums.Rating;
 
 import java.net.URL;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
@@ -27,7 +28,7 @@ public class Movie {
     private Integer durationInMinutes;
 
     @Column(name = "release_date", nullable = false)
-    private LocalDateTime releaseDate;
+    private LocalDate releaseDate;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "rating", nullable = false)
@@ -44,7 +45,7 @@ public class Movie {
 
     public Movie(String title,
                  Integer durationInMinutes,
-                 LocalDateTime releaseDate,
+                 LocalDate releaseDate,
                  Rating rating) {
         setTitle(title);
         setDurationInMinutes(durationInMinutes);
@@ -84,11 +85,11 @@ public class Movie {
         this.durationInMinutes = durationInMinutes;
     }
 
-    public LocalDateTime getReleaseDate() {
+    public LocalDate getReleaseDate() {
         return releaseDate;
     }
 
-    public void setReleaseDate(LocalDateTime releaseDate) {
+    public void setReleaseDate(LocalDate releaseDate) {
         this.releaseDate = releaseDate;
     }
 

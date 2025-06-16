@@ -20,14 +20,6 @@ public interface RoleRepository extends CrudRepository<Role, Long> {
 
     Optional<Role> findByName(String name);
 
-    @EntityGraph(attributePaths = {
-            "roleUser"
-    })
-    @Query("SELECT r " +
-            "FROM Role r " +
-            "WHERE r.name = :name ")
-    Optional<Role> findByNameWithRoleUser(String name);
-
     Collection<Role> findByNameIn(Collection<String> names);
 
     @EntityGraph(attributePaths = {

@@ -7,5 +7,4 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface MovieRepository extends CrudRepository<Movie, Long> {
-    List<Movie> findByReleaseDateBetween(LocalDateTime startDate, LocalDateTime endDate);
 }
