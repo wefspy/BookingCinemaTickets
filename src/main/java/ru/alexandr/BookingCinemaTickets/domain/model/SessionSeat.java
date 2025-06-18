@@ -3,18 +3,23 @@ package ru.alexandr.BookingCinemaTickets.domain.model;
 import jakarta.persistence.*;
 import ru.alexandr.BookingCinemaTickets.domain.enums.SessionSeatStatus;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
 @Table(name = "session_seats")
 public class SessionSeat {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "session_seats_id")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sessionSeatsSessionSeatIdSeq")
+    @SequenceGenerator(
+            name = "sessionSeatsSessionSeatIdSeq",
+            sequenceName = "session_seats_session_seat_id_seq",
+            allocationSize = 1)
+    @Column(name = "session_seat_id")
     private Long id;
 
     @Column(name = "price", nullable = false)
-    private Double price;
+    private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -33,7 +38,7 @@ public class SessionSeat {
 
     public SessionSeat(Session session,
                        Seat seat,
-                       Double price,
+                       BigDecimal price,
                        SessionSeatStatus status) {
         setSession(session);
         setSeat(seat);
@@ -65,11 +70,11 @@ public class SessionSeat {
         this.seat = seat;
     }
 
-    public Double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 

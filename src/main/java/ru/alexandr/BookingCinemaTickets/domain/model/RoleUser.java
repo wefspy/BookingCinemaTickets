@@ -8,8 +8,12 @@ import java.util.Objects;
 @Table(name = "roles_users")
 public class RoleUser {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "roles_users_id")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "rolesUsersRoleUserIdSeq")
+    @SequenceGenerator(
+            name = "rolesUsersRoleUserIdSeq",
+            sequenceName = "roles_users_role_user_id_seq",
+            allocationSize = 1)
+    @Column(name = "role_user_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

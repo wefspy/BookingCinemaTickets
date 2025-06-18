@@ -14,7 +14,8 @@ import java.util.Set;
 @Table(name = "movies")
 public class Movie {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "moviesMovieIdSeq")
+    @SequenceGenerator(name = "moviesMovieIdSeq", sequenceName = "movies_movie_id_seq", allocationSize = 1)
     @Column(name = "movie_id")
     private Long id;
 
