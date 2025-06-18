@@ -6,5 +6,6 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
     <include relativeToChangelogFile="true" file="2025-06-16--00-initial-schema.sql"/>
+    <include relativeToChangelogFile="true" file="2025-06-18--00-initial-data.sql" />
 
 </databaseChangeLog>
