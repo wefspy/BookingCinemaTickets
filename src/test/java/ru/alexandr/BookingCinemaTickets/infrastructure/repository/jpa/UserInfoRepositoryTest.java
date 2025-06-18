@@ -5,9 +5,12 @@ import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import ru.alexandr.BookingCinemaTickets.domain.model.User;
 import ru.alexandr.BookingCinemaTickets.domain.model.UserInfo;
+import ru.alexandr.BookingCinemaTickets.testConfiguration.PostgresTestContainerConfiguration;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -15,6 +18,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Import(PostgresTestContainerConfiguration.class)
 class UserInfoRepositoryTest {
 
     @Autowired

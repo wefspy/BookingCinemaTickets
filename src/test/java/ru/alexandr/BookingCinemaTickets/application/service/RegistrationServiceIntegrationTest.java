@@ -4,7 +4,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.alexandr.BookingCinemaTickets.application.dto.RegisterDto;
 import ru.alexandr.BookingCinemaTickets.application.dto.RoleDto;
@@ -19,6 +21,7 @@ import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.RoleUserRe
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.UserInfoRepository;
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.UserRepository;
 import ru.alexandr.BookingCinemaTickets.infrastructure.security.RoleEnum;
+import ru.alexandr.BookingCinemaTickets.testConfiguration.PostgresTestContainerConfiguration;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +29,10 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
 
+
 @SpringBootTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Import(PostgresTestContainerConfiguration.class)
 class RegistrationServiceIntegrationTest {
     @Autowired
     private RegistrationService registrationService;

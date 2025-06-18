@@ -5,16 +5,21 @@ import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import ru.alexandr.BookingCinemaTickets.domain.model.Role;
 import ru.alexandr.BookingCinemaTickets.domain.model.RoleUser;
 import ru.alexandr.BookingCinemaTickets.domain.model.User;
+import ru.alexandr.BookingCinemaTickets.testConfiguration.PostgresTestContainerConfiguration;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Import(PostgresTestContainerConfiguration.class)
 class RoleUserRepositoryTest {
     @Autowired
     private RoleUserRepository roleUserRepository;

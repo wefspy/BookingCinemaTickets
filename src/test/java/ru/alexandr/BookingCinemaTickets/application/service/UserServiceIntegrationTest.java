@@ -4,7 +4,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +21,7 @@ import ru.alexandr.BookingCinemaTickets.infrastructure.config.DateTimeConfig;
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.RoleRepository;
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.RoleUserRepository;
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.UserRepository;
+import ru.alexandr.BookingCinemaTickets.testConfiguration.PostgresTestContainerConfiguration;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -27,6 +30,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Import(PostgresTestContainerConfiguration.class)
 class UserServiceIntegrationTest {
 
     @Autowired
