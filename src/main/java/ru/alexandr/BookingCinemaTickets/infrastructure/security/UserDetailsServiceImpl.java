@@ -6,6 +6,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import ru.alexandr.BookingCinemaTickets.domain.model.Role;
+import ru.alexandr.BookingCinemaTickets.domain.model.RoleUser;
 import ru.alexandr.BookingCinemaTickets.domain.model.User;
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.UserRepository;
 
@@ -28,7 +30,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 ));
 
         Set<GrantedAuthority> authorities = user.getRoleUser().stream()
-                .map(roleUser -> new SimpleGrantedAuthority(roleUser.getRole().getName()))
+                .map(RoleUser::getRole)
+                .map(Role::getAuthority)
+                .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toSet());
 
         return new UserDetailsImpl(

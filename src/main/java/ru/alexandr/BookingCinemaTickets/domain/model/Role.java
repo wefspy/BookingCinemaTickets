@@ -37,6 +37,10 @@ public class Role {
         return name;
     }
 
+    public String getAuthority() {
+        return String.format("ROLE_%s", name);
+    }
+
     public void setName(String name) {
         this.name = name;
     }

@@ -92,7 +92,7 @@ class RegistrationServiceIntegrationTest {
         assertThat(userProfileInfoDto.roles())
                 .hasSize(1)
                 .extracting(RoleDto::name)
-                .contains(RoleEnum.USER.getAuthority());
+                .contains(RoleEnum.USER.name());
         assertThat(userProfileInfoDto.email()).isEqualTo(registerDto.email());
         assertThat(userProfileInfoDto.phoneNumber()).isEqualTo(registerDto.phoneNumber());
         assertThat(userProfileInfoDto.createdAt())

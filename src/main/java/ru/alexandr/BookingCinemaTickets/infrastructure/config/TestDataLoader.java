@@ -47,7 +47,7 @@ public class TestDataLoader implements ApplicationRunner {
 
     private void seedRoles() {
         Set<String> roles = Arrays.stream(RoleEnum.values())
-                .map(RoleEnum::getAuthority)
+                .map(RoleEnum::name)
                 .collect(Collectors.toSet());
 
         Collection<String> existsRoles = roleRepository.findByNameIn(roles).stream()
@@ -77,8 +77,8 @@ public class TestDataLoader implements ApplicationRunner {
 
         UserProfileInfoDto userProfile = registrationService.register(dto);
 
-        Long roleId = roleRepository.findByName(RoleEnum.ADMIN.getAuthority())
-                .orElseThrow(() -> new RoleNotFoundException(RoleEnum.ADMIN.getAuthority()))
+        Long roleId = roleRepository.findByName(RoleEnum.ADMIN.name())
+                .orElseThrow(() -> new RoleNotFoundException(RoleEnum.ADMIN.name()))
                 .getId();
         userService.assignRoleToUser(userProfile.userId(), roleId);
     }

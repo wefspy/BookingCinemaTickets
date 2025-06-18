@@ -83,7 +83,7 @@ public class RegistrationService {
     }
 
     private Collection<Role> fetchBasicRolesWithRoleUser() {
-        Set<String> basicRoles = Set.of(RoleEnum.USER.getAuthority());
+        Set<String> basicRoles = Set.of(RoleEnum.USER.name());
         Collection<Role> foundRoles = roleRepository.findAllByNameWithRoleUser(basicRoles);
 
         if (basicRoles.size() != foundRoles.size()) {
@@ -92,7 +92,7 @@ public class RegistrationService {
                     .collect(Collectors.toSet());
 
             List<String> notFoundNames = basicRoles.stream()
-                    .filter(id -> !foundNames.contains(id))
+                    .filter(name -> !foundNames.contains(name))
                     .toList();
 
             throw new RoleNotFoundException(
