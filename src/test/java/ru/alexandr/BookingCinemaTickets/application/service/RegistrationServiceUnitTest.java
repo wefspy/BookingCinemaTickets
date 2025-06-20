@@ -90,7 +90,7 @@ class RegistrationServiceUnitTest {
     void createUserWithInfo_ShouldSaveUserWithRolesAndInfo() {
         when(userRepository.existsByUsername(registerDto.username()))
                 .thenReturn(false);
-        when(roleRepository.findAllByNameWithRoleUser(anyCollection()))
+        when(roleRepository.findByNameIn(anyCollection()))
                 .thenReturn(List.of(roleUser));
         when(userProfileInfoMapper.toDto(any(), any(), any()))
                 .thenReturn(userProfileInfoDto);

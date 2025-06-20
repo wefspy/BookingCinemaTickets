@@ -20,6 +20,7 @@ import ru.alexandr.BookingCinemaTickets.domain.model.UserInfo;
 import ru.alexandr.BookingCinemaTickets.infrastructure.config.DateTimeConfig;
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.RoleRepository;
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.RoleUserRepository;
+import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.UserInfoRepository;
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.UserRepository;
 import ru.alexandr.BookingCinemaTickets.testConfiguration.PostgresTestContainerConfiguration;
 
@@ -42,6 +43,8 @@ class UserServiceIntegrationTest {
     @Autowired
     private UserRepository userRepository;
     @Autowired
+    private UserInfoRepository userInfoRepository;
+    @Autowired
     private RoleRepository roleRepository;
     @Autowired
     private RoleUserRepository roleUserRepository;
@@ -58,13 +61,12 @@ class UserServiceIntegrationTest {
                 "username",
                 "password"
         );
-
+        userRepository.save(user);
         userInfo = new UserInfo(
                 user,
                 LocalDateTime.now()
         );
-        userRepository.save(user);
-
+        userInfoRepository.save(userInfo);
         role = new Role("user");
         roleRepository.save(role);
 

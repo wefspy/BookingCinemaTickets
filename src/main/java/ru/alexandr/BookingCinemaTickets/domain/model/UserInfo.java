@@ -53,19 +53,7 @@ public class UserInfo {
     }
 
     public void setUser(User user) {
-        if (this.user == user) {
-            return;
-        }
-
-        if (this.user != null) {
-            this.user.setUserInfo(null);
-        }
-
         this.user = user;
-
-        if (user != null && user.getUserInfo() != this) {
-            user.setUserInfo(this);
-        }
     }
 
     public String getEmail() {

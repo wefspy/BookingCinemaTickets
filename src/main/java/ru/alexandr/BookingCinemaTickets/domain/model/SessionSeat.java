@@ -91,19 +91,7 @@ public class SessionSeat {
     }
 
     public void setTicket(Ticket ticket) {
-        if (this.ticket == ticket) {
-            return;
-        }
-
-        if (this.ticket != null) {
-            this.ticket.setSessionSeat(null);
-        }
-
         this.ticket = ticket;
-
-        if (ticket != null && ticket.getSessionSeat() != this) {
-            ticket.setSessionSeat(this);
-        }
     }
 
     @Override

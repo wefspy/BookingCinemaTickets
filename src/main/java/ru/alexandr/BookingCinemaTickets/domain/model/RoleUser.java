@@ -43,15 +43,7 @@ public class RoleUser {
     }
 
     public void setUser(User user) {
-        if (this.user != null) {
-            this.user.getRoleUser().remove(this);
-        }
-
         this.user = user;
-
-        if (user != null) {
-            user.getRoleUser().add(this);
-        }
     }
 
     public Role getRole() {
@@ -59,15 +51,7 @@ public class RoleUser {
     }
 
     public void setRole(Role role) {
-        if (this.role != null) {
-            this.role.getRoleUser().remove(this);
-        }
-
         this.role = role;
-
-        if (role != null) {
-            role.getRoleUser().add(this);
-        }
     }
 
     @Override

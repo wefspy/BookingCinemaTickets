@@ -59,15 +59,7 @@ public class Payment {
     }
 
     public void setUserInfo(UserInfo userInfo) {
-        if (this.userInfo != null) {
-            this.userInfo.getPayments().remove(this);
-        }
-
         this.userInfo = userInfo;
-
-        if (userInfo != null) {
-            userInfo.getPayments().add(this);
-        }
     }
 
     public Ticket getTicket() {
@@ -75,15 +67,7 @@ public class Payment {
     }
 
     public void setTicket(Ticket ticket) {
-        if (this.ticket != null) {
-            this.ticket.getPayments().remove(this);
-        }
-
         this.ticket = ticket;
-
-        if (ticket != null) {
-            ticket.getPayments().add(this);
-        }
     }
 
     public BigDecimal getAmount() {

@@ -43,16 +43,7 @@ public class GenreMovie {
     }
 
     public void setMovie(Movie movie) {
-        if (this.movie != null) {
-            this.movie.getGenreMovie().remove(this);
-        }
-
         this.movie = movie;
-
-        if (movie != null) {
-            movie.getGenreMovie().add(this);
-        }
-
     }
 
     public Genre getGenre() {
@@ -60,15 +51,7 @@ public class GenreMovie {
     }
 
     public void setGenre(Genre genre) {
-        if (this.genre != null) {
-            this.genre.getGenreMovie().remove(this);
-        }
-
         this.genre = genre;
-
-        if (genre != null) {
-            genre.getGenreMovie().add(this);
-        }
     }
 
     @Override

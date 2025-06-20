@@ -62,19 +62,7 @@ public class User {
     }
 
     public void setUserInfo(UserInfo userInfo) {
-        if (this.userInfo == userInfo) {
-            return;
-        }
-
-        if (this.userInfo != null) {
-            this.userInfo.setUser(null);
-        }
-
         this.userInfo = userInfo;
-
-        if (userInfo != null && userInfo.getUser() != this) {
-            userInfo.setUser(this);
-        }
     }
 
     public Set<RoleUser> getRoleUser() {

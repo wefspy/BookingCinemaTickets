@@ -56,15 +56,7 @@ public class Seat {
     }
 
     public void setHall(Hall hall) {
-        if (this.hall != null) {
-            this.hall.getSeats().remove(this);
-        }
-
         this.hall = hall;
-
-        if (hall != null) {
-            hall.getSeats().add(this);
-        }
     }
 
     public Integer getRowNumber() {

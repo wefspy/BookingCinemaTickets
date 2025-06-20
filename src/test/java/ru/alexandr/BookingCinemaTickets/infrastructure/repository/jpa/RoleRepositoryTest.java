@@ -54,27 +54,4 @@ class RoleRepositoryTest {
                 .isEmpty();
     }
 
-    @Test
-    void findAllByNameWithRoleUser_ShouldReturnCollection_WhenIdExists() {
-        Collection<String> existNames = roles.stream()
-                .map(Role::getName)
-                .toList();
-
-        Collection<Role> actual = roleRepository.findAllByNameWithRoleUser(existNames);
-
-        assertThat(actual).isNotNull()
-                .isNotEmpty()
-                .containsAll(roles)
-                .hasSize(roles.size());
-    }
-
-    @Test
-    void findAllByNameWithRoleUser_ShouldReturnEmptyCollection_WhenIdNotExists() {
-        Collection<String> notExistsNames = List.of("Long.MIN_VALUE");
-
-        Collection<Role> actual = roleRepository.findAllByNameWithRoleUser(notExistsNames);
-
-        assertThat(actual).isNotNull()
-                .isEmpty();
-    }
 }

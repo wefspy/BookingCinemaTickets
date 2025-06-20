@@ -67,11 +67,11 @@ public class UserService {
 
     @Transactional
     public void assignRoleToUser(Long userId, Long roleId) {
-        User user = userRepository.findByIdWithRoles(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(
                         String.format("Пользователь с id %s не найден", userId)
                 ));
-        Role role = roleRepository.findByIdWithRoleUser(roleId)
+        Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new RoleNotFoundException(
                         String.format("Роли с id %s не найдено", roleId)
                 ));
