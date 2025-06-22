@@ -5,18 +5,14 @@ import ru.alexandr.BookingCinemaTickets.application.dto.UserProfileInfoDto;
 import ru.alexandr.BookingCinemaTickets.domain.model.Role;
 import ru.alexandr.BookingCinemaTickets.domain.model.User;
 import ru.alexandr.BookingCinemaTickets.domain.model.UserInfo;
-import ru.alexandr.BookingCinemaTickets.infrastructure.config.DateTimeConfig;
 
 import java.util.Collection;
 
 @Component
 public class UserProfileInfoMapper {
-    private final DateTimeConfig config;
     private final RoleMapper roleMapper;
 
-    public UserProfileInfoMapper(DateTimeConfig config,
-                                 RoleMapper roleMapper) {
-        this.config = config;
+    public UserProfileInfoMapper(RoleMapper roleMapper) {
         this.roleMapper = roleMapper;
     }
 
@@ -31,7 +27,7 @@ public class UserProfileInfoMapper {
                 roleMapper.getRoleDtos(roles),
                 userInfo.getEmail(),
                 userInfo.getPhoneNumber(),
-                userInfo.getCreatedAt().format(config.getFormatter())
+                userInfo.getCreatedAt()
         );
     }
 }
