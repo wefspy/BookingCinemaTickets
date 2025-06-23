@@ -11,7 +11,8 @@ import java.util.Set;
 @Table(name = "sessions")
 public class Session {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sessionsSessionIdSeq")
+    @SequenceGenerator(name = "sessionsSessionIdSeq", sequenceName = "sessions_session_id_seq", allocationSize = 1)
     @Column(name = "session_id")
     private Long id;
 
@@ -50,15 +51,7 @@ public class Session {
     }
 
     public void setMovie(Movie movie) {
-        if (movie != null) {
-            this.movie.getSessions().remove(this);
-        }
-
         this.movie = movie;
-
-        if (movie != null) {
-            movie.getSessions().add(this);
-        }
     }
 
     public Hall getHall() {
@@ -66,15 +59,7 @@ public class Session {
     }
 
     public void setHall(Hall hall) {
-        if (this.hall != null) {
-            this.hall.getSessions().remove(this);
-        }
-
         this.hall = hall;
-
-        if (hall != null) {
-            hall.getSessions().add(this);
-        }
     }
 
     public LocalDateTime getStartTime() {

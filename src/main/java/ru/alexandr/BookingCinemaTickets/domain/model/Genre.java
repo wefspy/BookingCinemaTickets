@@ -10,7 +10,8 @@ import java.util.Set;
 @Table(name = "genres")
 public class Genre {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "genresGenreIdSeq")
+    @SequenceGenerator(name = "genresGenreIdSeq", sequenceName = "genres_genre_id_seq", allocationSize = 1)
     @Column(name = "genre_id")
     private Long id;
 

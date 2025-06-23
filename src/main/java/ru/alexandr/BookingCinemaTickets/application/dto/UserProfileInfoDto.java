@@ -1,5 +1,6 @@
 package ru.alexandr.BookingCinemaTickets.application.dto;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 
 public record UserProfileInfoDto(
@@ -8,7 +9,7 @@ public record UserProfileInfoDto(
         Collection<RoleDto> roles,
         String email,
         String phoneNumber,
-        String createdAt
+        LocalDateTime createdAt
 ) {
 
 }

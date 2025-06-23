@@ -13,11 +13,7 @@ import ru.alexandr.BookingCinemaTickets.domain.model.RoleUser;
 import ru.alexandr.BookingCinemaTickets.domain.model.User;
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.RoleRepository;
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.RoleUserRepository;
-import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.UserInfoRepository;
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.UserRepository;
-
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -26,10 +22,10 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final RoleUserRepository roleUserRepository;
 
-    public UserService(UserInfoRepository userInfoRepository,
-                       UserRepository userRepository,
+    public UserService(UserRepository userRepository,
                        UserProfileInfoMapper userProfileInfoMapper,
-                       RoleRepository roleRepository, RoleUserRepository roleUserRepository) {
+                       RoleRepository roleRepository,
+                       RoleUserRepository roleUserRepository) {
         this.userRepository = userRepository;
         this.userProfileInfoMapper = userProfileInfoMapper;
         this.roleRepository = roleRepository;
@@ -42,36 +38,22 @@ public class UserService {
                         String.format("Пользователь с id %s не найден", userId)
                 ));
 
-        Set<Role> roles = user.getRoleUser().stream()
-                .map(RoleUser::getRole)
-                .collect(Collectors.toSet());
-
-        return userProfileInfoMapper.toDto(
-                user,
-                user.getUserInfo(),
-                roles
-        );
+        return userProfileInfoMapper.toDto(user);
     }
 
     public Page<UserProfileInfoDto> getUserProfileInfoPage(Pageable pageable) {
         Page<User> userPage = userRepository.findAllWithInfoAndRoles(pageable);
 
-        return userPage.map(user -> userProfileInfoMapper.toDto(
-                user,
-                user.getUserInfo(),
-                user.getRoleUser().stream()
-                        .map(RoleUser::getRole)
-                        .collect(Collectors.toSet())
-        ));
+        return userPage.map(userProfileInfoMapper::toDto);
     }
 
     @Transactional
     public void assignRoleToUser(Long userId, Long roleId) {
-        User user = userRepository.findByIdWithRoles(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(
                         String.format("Пользователь с id %s не найден", userId)
                 ));
-        Role role = roleRepository.findByIdWithRoleUser(roleId)
+        Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new RoleNotFoundException(
                         String.format("Роли с id %s не найдено", roleId)
                 ));

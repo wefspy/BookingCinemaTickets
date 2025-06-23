@@ -10,16 +10,16 @@ import java.util.stream.Collectors;
 @Component
 public class RoleMapper {
 
-    public RoleDto getRoleDto(Role role) {
+    public RoleDto toDto(Role role) {
         return new RoleDto(
                 role.getId(),
                 role.getName()
         );
     }
 
-    public Collection<RoleDto> getRoleDtos(Collection<Role> roles) {
+    public Collection<RoleDto> toDtos(Collection<Role> roles) {
         return roles.stream()
-                .map(this::getRoleDto)
-                .collect(Collectors.toSet());
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 }

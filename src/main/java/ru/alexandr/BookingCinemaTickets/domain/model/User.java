@@ -10,7 +10,8 @@ import java.util.Set;
 @Table(name = "users")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "usersUserIdSeq")
+    @SequenceGenerator(name = "usersUserIdSeq", sequenceName = "users_user_id_seq", allocationSize = 1)
     @Column(name = "user_id")
     private Long id;
 
@@ -61,19 +62,7 @@ public class User {
     }
 
     public void setUserInfo(UserInfo userInfo) {
-        if (this.userInfo == userInfo) {
-            return;
-        }
-
-        if (this.userInfo != null) {
-            this.userInfo.setUser(null);
-        }
-
         this.userInfo = userInfo;
-
-        if (userInfo != null && userInfo.getUser() != this) {
-            userInfo.setUser(this);
-        }
     }
 
     public Set<RoleUser> getRoleUser() {

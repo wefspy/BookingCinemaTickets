@@ -8,8 +8,12 @@ import java.util.Objects;
 @Table(name = "roles_users")
 public class RoleUser {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "roles_users_id")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "rolesUsersRoleUserIdSeq")
+    @SequenceGenerator(
+            name = "rolesUsersRoleUserIdSeq",
+            sequenceName = "roles_users_role_user_id_seq",
+            allocationSize = 1)
+    @Column(name = "role_user_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -39,15 +43,7 @@ public class RoleUser {
     }
 
     public void setUser(User user) {
-        if (this.user != null) {
-            this.user.getRoleUser().remove(this);
-        }
-
         this.user = user;
-
-        if (user != null) {
-            user.getRoleUser().add(this);
-        }
     }
 
     public Role getRole() {
@@ -55,15 +51,7 @@ public class RoleUser {
     }
 
     public void setRole(Role role) {
-        if (this.role != null) {
-            this.role.getRoleUser().remove(this);
-        }
-
         this.role = role;
-
-        if (role != null) {
-            role.getRoleUser().add(this);
-        }
     }
 
     @Override

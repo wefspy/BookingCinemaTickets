@@ -1,10 +1,13 @@
 package ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import ru.alexandr.BookingCinemaTickets.domain.model.Role;
+import ru.alexandr.BookingCinemaTickets.testUtils.annotation.PostgreSQLTestContainer;
 
 import java.util.Collection;
 import java.util.List;
@@ -12,9 +15,13 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
+@PostgreSQLTestContainer
 class RoleRepositoryTest {
     @Autowired
     RoleRepository roleRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private Role roleUser;
     private Role roleAdmin;
@@ -22,9 +29,12 @@ class RoleRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        roleUser = roleRepository.save(new Role("ROLE_USER"));
-        roleAdmin = roleRepository.save(new Role("ROLE_ADMIN"));
+        roleUser = roleRepository.save(new Role("TEST-ROLE-USER-1"));
+        roleAdmin = roleRepository.save(new Role("TEST-ROLE-USER-2"));
         roles = List.of(roleUser, roleAdmin);
+
+        entityManager.flush();
+        entityManager.clear();
     }
 
     @Test
@@ -37,39 +47,16 @@ class RoleRepositoryTest {
 
         assertThat(actual).isNotNull()
                 .isNotEmpty()
-                .containsAll(roles)
-                .hasSize(roles.size());
+                .hasSize(roles.size())
+                .containsExactlyInAnyOrderElementsOf(roles);
     }
 
     @Test
     void findByNameIn_ShouldReturnEmptyCollection_WhenNameNotExists() {
-        Collection<Role> actual = roleRepository.findByNameIn(List.of("1", "2"));
+        Collection<Role> actual = roleRepository.findByNameIn(List.of("NOT-EXISTS-ROLE-1", "NOT-EXISTS-ROLE-1"));
 
         assertThat(actual).isNotNull()
                 .isEmpty();
     }
 
-    @Test
-    void findAllByNameWithRoleUser_ShouldReturnCollection_WhenIdExists() {
-        Collection<String> existNames = roles.stream()
-                .map(Role::getName)
-                .toList();
-
-        Collection<Role> actual = roleRepository.findAllByNameWithRoleUser(existNames);
-
-        assertThat(actual).isNotNull()
-                .isNotEmpty()
-                .containsAll(roles)
-                .hasSize(roles.size());
-    }
-
-    @Test
-    void findAllByNameWithRoleUser_ShouldReturnEmptyCollection_WhenIdNotExists() {
-        Collection<String> notExistsNames = List.of("Long.MIN_VALUE");
-
-        Collection<Role> actual = roleRepository.findAllByNameWithRoleUser(notExistsNames);
-
-        assertThat(actual).isNotNull()
-                .isEmpty();
-    }
 }

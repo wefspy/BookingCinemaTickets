@@ -13,21 +13,21 @@ import ru.alexandr.BookingCinemaTickets.application.dto.UserProfileInfoDto;
 import ru.alexandr.BookingCinemaTickets.application.exception.UsernameAlreadyTakenException;
 import ru.alexandr.BookingCinemaTickets.application.mapper.UserProfileInfoMapper;
 import ru.alexandr.BookingCinemaTickets.domain.model.Role;
+import ru.alexandr.BookingCinemaTickets.domain.model.RoleUser;
 import ru.alexandr.BookingCinemaTickets.domain.model.User;
 import ru.alexandr.BookingCinemaTickets.domain.model.UserInfo;
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.RoleRepository;
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.RoleUserRepository;
+import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.UserInfoRepository;
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.UserRepository;
+import ru.alexandr.BookingCinemaTickets.infrastructure.security.RoleEnum;
+import ru.alexandr.BookingCinemaTickets.testUtils.factory.TestEntityBuilder;
 
-import java.lang.reflect.Field;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,6 +36,8 @@ class RegistrationServiceUnitTest {
     @InjectMocks
     private RegistrationService registrationService;
 
+    @Mock
+    private UserInfoRepository userInfoRepository;
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -47,68 +49,71 @@ class RegistrationServiceUnitTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
-    private RegisterDto registerDto;
-    private Role roleUser;
-    private Set<Role> roles;
+    private final RegisterDto registerDto = new RegisterDto(
+            "username",
+            "securityPassword",
+            "email@gmail.com",
+            "+79111333377"
+    );
+    private final String hashedPassword = "hashPassword";
+    private User user;
+    private UserInfo userInfo;
+    private Role role;
+    private List<Role> roles;
+    private RoleUser roleUser;
     private UserProfileInfoDto userProfileInfoDto;
 
     @BeforeEach
     void setUp() {
-        roleUser = new Role("ROLE_USER");
-
-        try {
-            Field fieldId = Role.class.getDeclaredField("id");
-
-            fieldId.setAccessible(true);
-
-            fieldId.set(roleUser, 2L);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-
-        roles = Set.of(roleUser);
-
-        registerDto = new RegisterDto(
-                "username",
-                "securityPassword",
-                "email@gmail.com",
-                "+79111333377"
-        );
-
+        user = TestEntityBuilder.user(1L, registerDto.username(), registerDto.password());
+        userInfo = TestEntityBuilder.userInfo(user.getId(), user, LocalDateTime.now());
+        role = TestEntityBuilder.role(1L, RoleEnum.USER.name());
+        roles = List.of(role);
+        roleUser = TestEntityBuilder.roleUser(1L, user, role);
 
         userProfileInfoDto = new UserProfileInfoDto(
-                1L,
-                registerDto.username(),
-                Set.of(new RoleDto(roleUser.getId(), roleUser.getName())),
-                registerDto.email(),
-                registerDto.phoneNumber(),
-                LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
+                user.getId(),
+                user.getUsername(),
+                List.of(new RoleDto(role.getId(), role.getName())),
+                userInfo.getEmail(),
+                userInfo.getPhoneNumber(),
+                userInfo.getCreatedAt()
         );
     }
 
     @Test
-    void createUserWithInfo_ShouldSaveUserWithRolesAndInfo() {
-        when(userRepository.existsByUsername(registerDto.username()))
-                .thenReturn(false);
-        when(roleRepository.findAllByNameWithRoleUser(anyCollection()))
-                .thenReturn(List.of(roleUser));
-        when(userProfileInfoMapper.toDto(any(), any(), any()))
+    void register_ShouldSaveUserWithRolesAndInfo() {
+        when(userRepository.existsByUsername(registerDto.username())).thenReturn(false);
+        when(passwordEncoder.encode(registerDto.password())).thenReturn(hashedPassword);
+        when(userRepository.save(argThat(u ->
+                u.getUsername().equals(registerDto.username())
+                && u.getPasswordHash().equals(hashedPassword)
+        ))).thenReturn(user);
+        when(userInfoRepository.save(argThat(uf ->
+                uf.getUser().equals(user)
+                && uf.getEmail().equals(registerDto.email())
+                && uf.getPhoneNumber().equals(registerDto.phoneNumber())
+        ))).thenReturn(userInfo);
+        when(roleRepository.findByNameIn(anyCollection())).thenReturn(roles);
+        when(userProfileInfoMapper.toDto(user, userInfo, roles))
                 .thenReturn(userProfileInfoDto);
-        when(passwordEncoder.encode(registerDto.password()))
-                .thenReturn("hashPassword");
 
         UserProfileInfoDto userProfileActual = registrationService.register(registerDto);
 
         assertThat(userProfileActual).isEqualTo(userProfileInfoDto);
 
-        verify(userRepository)
-                .existsByUsername(registerDto.username());
-        verify(userRepository, times(1))
-                .save(any(User.class));
-        verify(roleUserRepository, times(1))
-                .saveAll(anyIterable());
-        verify(userProfileInfoMapper, times(1))
-                .toDto(any(User.class), any(UserInfo.class), anyCollection());
+        verify(userRepository).existsByUsername(registerDto.username());
+        verify(passwordEncoder).encode(registerDto.password());
+        verify(userRepository, times(1)).save(argThat(u ->
+                u.getUsername().equals(registerDto.username())
+                && u.getPasswordHash().equals(hashedPassword)));
+        verify(userInfoRepository, times(1)).save(argThat(uf ->
+                uf.getUser().equals(user)
+                && uf.getEmail().equals(registerDto.email())
+                && uf.getPhoneNumber().equals(registerDto.phoneNumber())));
+        verify(roleRepository, times(1)).findByNameIn(anyCollection());
+        verify(roleUserRepository, times(1)).saveAll(anyIterable());
+        verify(userProfileInfoMapper, times(1)).toDto(user, userInfo, roles);
     }
 
     @Test
@@ -117,5 +122,9 @@ class RegistrationServiceUnitTest {
 
         assertThatThrownBy(() -> registrationService.register(registerDto))
                 .isInstanceOf(UsernameAlreadyTakenException.class);
+
+        verify(userRepository, never()).save(any());
+        verify(userInfoRepository, never()).save(any());
+        verify(roleUserRepository, never()).saveAll(anyIterable());
     }
 }

@@ -11,7 +11,8 @@ import java.util.Set;
 @Table(name = "tickets")
 public class Ticket {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ticketsTicketIdSeq")
+    @SequenceGenerator(name = "ticketsTicketIdSeq", sequenceName = "tickets_ticket_id_seq", allocationSize = 1)
     @Column(name = "ticket_id")
     private Long id;
 
@@ -60,15 +61,7 @@ public class Ticket {
     }
 
     public void setUserInfo(UserInfo userInfo) {
-        if (this.userInfo != null) {
-            this.userInfo.getTickets().remove(this);
-        }
-
         this.userInfo = userInfo;
-
-        if (userInfo != null) {
-            userInfo.getTickets().add(this);
-        }
     }
 
     public SessionSeat getSessionSeat() {
@@ -76,19 +69,7 @@ public class Ticket {
     }
 
     public void setSessionSeat(SessionSeat sessionSeat) {
-        if (this.sessionSeat == sessionSeat) {
-            return;
-        }
-
-        if (this.sessionSeat != null) {
-            this.sessionSeat.setTicket(null);
-        }
-
         this.sessionSeat = sessionSeat;
-
-        if (sessionSeat != null && sessionSeat.getTicket() != this) {
-            sessionSeat.setTicket(this);
-        }
     }
 
     public LocalDateTime getBookingTime() {

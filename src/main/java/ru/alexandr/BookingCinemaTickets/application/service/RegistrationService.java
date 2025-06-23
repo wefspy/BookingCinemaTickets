@@ -14,10 +14,12 @@ import ru.alexandr.BookingCinemaTickets.domain.model.User;
 import ru.alexandr.BookingCinemaTickets.domain.model.UserInfo;
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.RoleRepository;
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.RoleUserRepository;
+import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.UserInfoRepository;
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.UserRepository;
 import ru.alexandr.BookingCinemaTickets.infrastructure.security.RoleEnum;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -27,17 +29,20 @@ import java.util.stream.Collectors;
 public class RegistrationService {
 
     private final UserRepository userRepository;
+    private final UserInfoRepository userInfoRepository;
     private final RoleRepository roleRepository;
     private final RoleUserRepository roleUserRepository;
     private final UserProfileInfoMapper userProfileInfoMapper;
     private final PasswordEncoder passwordEncoder;
 
     public RegistrationService(UserRepository userRepository,
+                               UserInfoRepository userInfoRepository,
                                RoleRepository roleRepository,
                                RoleUserRepository roleUserRepository,
                                UserProfileInfoMapper userProfileInfoMapper,
                                PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.userInfoRepository = userInfoRepository;
         this.roleRepository = roleRepository;
         this.roleUserRepository = roleUserRepository;
         this.userProfileInfoMapper = userProfileInfoMapper;
@@ -64,27 +69,22 @@ public class RegistrationService {
 
     private User createUser(RegisterDto dto) {
         User user = new User(dto.username(), passwordEncoder.encode(dto.password()));
-        userRepository.save(user);
-        return user;
+        return userRepository.save(user);
     }
 
     private UserInfo createUserInfo(User user, RegisterDto dto) {
         UserInfo userInfo = new UserInfo(
                 user,
-                LocalDateTime.now()
+                LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS)
         );
-        if (dto.email() != null) {
-            userInfo.setEmail(dto.email());
-        }
-        if (dto.phoneNumber() != null) {
-            userInfo.setPhoneNumber(dto.phoneNumber());
-        }
-        return userInfo;
+        userInfo.setEmail(dto.email());
+        userInfo.setPhoneNumber(dto.phoneNumber());
+        return userInfoRepository.save(userInfo);
     }
 
     private Collection<Role> fetchBasicRolesWithRoleUser() {
-        Set<String> basicRoles = Set.of(RoleEnum.USER.getAuthority());
-        Collection<Role> foundRoles = roleRepository.findAllByNameWithRoleUser(basicRoles);
+        Set<String> basicRoles = Set.of(RoleEnum.USER.name());
+        Collection<Role> foundRoles = roleRepository.findByNameIn(basicRoles);
 
         if (basicRoles.size() != foundRoles.size()) {
             Set<String> foundNames = foundRoles.stream()
@@ -92,7 +92,7 @@ public class RegistrationService {
                     .collect(Collectors.toSet());
 
             List<String> notFoundNames = basicRoles.stream()
-                    .filter(id -> !foundNames.contains(id))
+                    .filter(name -> !foundNames.contains(name))
                     .toList();
 
             throw new RoleNotFoundException(

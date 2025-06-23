@@ -1,32 +1,32 @@
 package ru.alexandr.BookingCinemaTickets.application.service;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import ru.alexandr.BookingCinemaTickets.application.dto.RegisterDto;
-import ru.alexandr.BookingCinemaTickets.application.dto.RoleDto;
 import ru.alexandr.BookingCinemaTickets.application.dto.UserProfileInfoDto;
 import ru.alexandr.BookingCinemaTickets.application.exception.UsernameAlreadyTakenException;
 import ru.alexandr.BookingCinemaTickets.domain.model.Role;
-import ru.alexandr.BookingCinemaTickets.domain.model.RoleUser;
 import ru.alexandr.BookingCinemaTickets.domain.model.User;
 import ru.alexandr.BookingCinemaTickets.domain.model.UserInfo;
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.RoleRepository;
-import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.RoleUserRepository;
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.UserInfoRepository;
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.UserRepository;
-import ru.alexandr.BookingCinemaTickets.infrastructure.security.RoleEnum;
+import ru.alexandr.BookingCinemaTickets.testUtils.annotation.PostgreSQLTestContainer;
+import ru.alexandr.BookingCinemaTickets.testUtils.annotation.TestActiveProfile;
+import ru.alexandr.BookingCinemaTickets.testUtils.asserts.UserProfileInfoDtoAssert;
 
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatException;
 
+@TestActiveProfile
 @SpringBootTest
+@Transactional
+@PostgreSQLTestContainer
 class RegistrationServiceIntegrationTest {
     @Autowired
     private RegistrationService registrationService;
@@ -37,107 +37,44 @@ class RegistrationServiceIntegrationTest {
     private UserInfoRepository userInfoRepository;
     @Autowired
     private RoleRepository roleRepository;
-    @Autowired
-    private RoleUserRepository roleUserRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
-    private RegisterDto registerDto;
-
-    @BeforeEach
-    void setUp() {
-        roleRepository.save(new Role("ROLE_USER"));
-
-        registerDto = new RegisterDto(
-                "testuser",
-                "securepass",
-                "test@example.com",
-                "1234567890"
-        );
-    }
-
-    @AfterEach
-    void tearDown() {
-        userRepository.deleteAll();
-        roleRepository.deleteAll();
-    }
+    private final RegisterDto registerDto = new RegisterDto(
+            "testuser",
+            "securepass",
+            "test@example.com",
+            "1234567890"
+    );
 
     @Test
-    void createUserWithInfo_ShouldSaveUserWithRolesAndInfo() {
+    void register_ShouldSaveUserWithRolesAndInfo() {
         registrationService.register(registerDto);
 
-        Optional<User> savedUser = userRepository.findByUsername(registerDto.username());
-        Optional<UserInfo> savedUserInfo = userInfoRepository.findByEmail(registerDto.email());
+        Optional<User> optionalUser = userRepository.findByUsername(registerDto.username());
+        Optional<UserInfo> optionalUserInfo = userInfoRepository.findByEmail(registerDto.email());
 
-        assertThat(savedUser).isPresent();
-        assertThat(savedUserInfo).isPresent();
+        Assertions.assertThat(optionalUser).isPresent();
+        Assertions.assertThat(optionalUserInfo).isPresent();
 
-        List<RoleUser> roleUsers = roleUserRepository.findByUserId(savedUser.get().getId());
-        assertThat(roleUsers).isNotEmpty();
+        User user = optionalUser.get();
+        Collection<Role> roles = roleRepository.findAllByRoleUserUserId(user.getId());
+        Assertions.assertThat(roles).isNotEmpty();
     }
 
     @Test
-    void createUserWithInfo_ShouldReturnCorrectProfileInfoDto() {
+    void register_ShouldReturnCorrectProfileInfoDto() {
+        LocalDateTime startRegisterTime = LocalDateTime.now();
         UserProfileInfoDto userProfileInfoDto = registrationService.register(registerDto);
+        LocalDateTime endRegisterTime = LocalDateTime.now();
 
-        assertThat(userProfileInfoDto).isNotNull();
-
-        assertThat(userProfileInfoDto.userName()).isEqualTo(registerDto.username());
-        assertThat(userProfileInfoDto.roles())
-                .hasSize(1)
-                .extracting(RoleDto::name)
-                .contains(RoleEnum.USER.getAuthority());
-        assertThat(userProfileInfoDto.email()).isEqualTo(registerDto.email());
-        assertThat(userProfileInfoDto.phoneNumber()).isEqualTo(registerDto.phoneNumber());
-        assertThat(userProfileInfoDto.createdAt())
-                .isNotNull();
-    }
-
-    @Test
-    void createUserWithInfo_ShouldSaveCorrect() {
-        registrationService.register(registerDto);
-
-        Optional<User> userOptional = userRepository.findByUsername(registerDto.username());
-
-        assertThat(userOptional).isPresent();
-
-        User user = userOptional.get();
-
-        assertThat(user.getUsername()).isEqualTo(registerDto.username());
-        assertThat(passwordEncoder.matches(registerDto.password(), user.getPasswordHash())).isTrue();
-    }
-
-    @Test
-    void createUserWithInfo_ShouldSaveCorrectInfo() {
-        registrationService.register(registerDto);
-
-        Optional<UserInfo> userInfoOptional = userInfoRepository.findByEmail(registerDto.email());
-
-        assertThat(userInfoOptional).isPresent();
-
-        UserInfo userInfo = userInfoOptional.get();
-
-        assertThat(userInfo.getEmail()).isEqualTo(registerDto.email());
-        assertThat(userInfo.getPhoneNumber()).isEqualTo(registerDto.phoneNumber());
-    }
-
-    @Test
-    void register_ShouldSaveCorrectRoles() {
-        registrationService.register(registerDto);
-
-        Optional<User> savedUser = userRepository.findByUsername(registerDto.username());
-        assertThat(savedUser).isPresent();
-
-        List<RoleUser> roleUsers = roleUserRepository.findByUserId(savedUser.get().getId());
-
-        assertThat(roleUsers).isNotNull()
-                .isNotEmpty()
-                .hasSize(1);
+        UserProfileInfoDtoAssert.assertThat(userProfileInfoDto)
+                .isNotNull()
+                .hasRegisterDto(registerDto, startRegisterTime, endRegisterTime)
+                .hasBaseRoles();
     }
 
     @Test
     void register_ShouldRollbackTransaction_OnConstraintViolation() {
-        registrationService.register(registerDto);
+        UserProfileInfoDto registeredDto = registrationService.register(registerDto);
 
         RegisterDto dtoWithDuplicateUserName = new RegisterDto(
                 registerDto.username(),
@@ -146,17 +83,25 @@ class RegistrationServiceIntegrationTest {
                 "222222"
         );
 
-        assertThatException().isThrownBy(() -> registrationService.register(dtoWithDuplicateUserName))
+        Assertions.assertThatException().isThrownBy(() -> registrationService.register(dtoWithDuplicateUserName))
                 .isInstanceOf(UsernameAlreadyTakenException.class);
 
-        assertThat(userRepository.count()).isEqualTo(1);
-        assertThat(userInfoRepository.count()).isEqualTo(1);
+        Assertions.assertThat(userRepository.count()).isEqualTo(1);
+        Assertions.assertThat(userInfoRepository.count()).isEqualTo(1);
 
-        Optional<User> optionalUser = userRepository.findByUsername(registerDto.username());
-        assertThat(optionalUser).isPresent();
+        Optional<User> optionalSavedUser = userRepository.findByUsername(registerDto.username());
+        Assertions.assertThat(optionalSavedUser).isPresent();
+        Optional<UserInfo> optionalSavedUserInfo = userInfoRepository.findByEmail(registerDto.email());
+        Assertions.assertThat(optionalSavedUserInfo).isPresent();
 
-        UserInfo userInfo = optionalUser.get().getUserInfo();
-        assertThat(userInfo.getEmail()).isEqualTo(registerDto.email());
-        assertThat(userInfo.getPhoneNumber()).isEqualTo(registerDto.phoneNumber());
+        User savedUser = optionalSavedUser.get();
+        Collection<Role> assignRoles = roleRepository.findAllByRoleUserUserId(savedUser.getId());
+
+        UserProfileInfoDtoAssert.assertThat(registeredDto)
+                .isNotNull()
+                .hasUser(savedUser)
+                .hasUserInfo(optionalSavedUserInfo.get())
+                .hasRoles(assignRoles);
+
     }
 }

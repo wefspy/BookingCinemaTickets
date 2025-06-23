@@ -15,10 +15,10 @@ import ru.alexandr.BookingCinemaTickets.application.dto.UserProfileInfoDto;
 import ru.alexandr.BookingCinemaTickets.application.exception.UserNotFoundException;
 import ru.alexandr.BookingCinemaTickets.application.mapper.UserProfileInfoMapper;
 import ru.alexandr.BookingCinemaTickets.domain.model.Role;
-import ru.alexandr.BookingCinemaTickets.domain.model.RoleUser;
 import ru.alexandr.BookingCinemaTickets.domain.model.User;
 import ru.alexandr.BookingCinemaTickets.domain.model.UserInfo;
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.UserRepository;
+import ru.alexandr.BookingCinemaTickets.testUtils.factory.TestEntityBuilder;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,49 +44,35 @@ public class UserServiceUnitTest {
     private User user;
     private UserInfo userInfo;
     private Role role;
-    private RoleUser roleUser;
     private UserProfileInfoDto userProfileInfoDto;
 
     @BeforeEach
     void setUp() {
-        user = new User(
-                "username",
-                "password"
-        );
-
-        userInfo = new UserInfo(
-                user,
-                LocalDateTime.now()
-        );
-
-        role = new Role("user");
-
-        roleUser = new RoleUser(
-                user,
-                role
-        );
+        user = TestEntityBuilder.user(1L, "username", "password");
+        userInfo = TestEntityBuilder.userInfo(user.getId(), user, LocalDateTime.now());
+        role = new Role("USER");
 
         userProfileInfoDto = new UserProfileInfoDto(
-                1L,
+                user.getId(),
                 user.getUsername(),
-                Set.of(new RoleDto(1L, role.getName())),
+                Set.of(new RoleDto(role.getId(), role.getName())),
                 userInfo.getEmail(),
                 userInfo.getPhoneNumber(),
-                userInfo.getCreatedAt().toString()
+                userInfo.getCreatedAt()
         );
     }
 
     @Test
     void getUserProfileInfo_ShouldReturnUserProfileInfo_WhenGetCorrectUserId() {
         when(userRepository.findByIdWithInfoAndRoles(user.getId())).thenReturn(Optional.of(user));
-        when(userProfileInfoMapper.toDto(user, userInfo, Set.of(role))).thenReturn(userProfileInfoDto);
+        when(userProfileInfoMapper.toDto(user)).thenReturn(userProfileInfoDto);
 
-        UserProfileInfoDto result = userService.getUserProfileInfo(user.getId());
+        UserProfileInfoDto actualDto = userService.getUserProfileInfo(user.getId());
 
-        verify(userRepository).findByIdWithInfoAndRoles(user.getId());
-        verify(userProfileInfoMapper).toDto(user, userInfo, Set.of(role));
+        verify(userRepository, times(1)).findByIdWithInfoAndRoles(user.getId());
+        verify(userProfileInfoMapper, times(1)).toDto(user);
 
-        assertThat(result).isEqualTo(userProfileInfoDto);
+        assertThat(actualDto).isEqualTo(userProfileInfoDto);
     }
 
     @Test
@@ -96,26 +82,25 @@ public class UserServiceUnitTest {
         assertThatThrownBy(() -> userService.getUserProfileInfo(user.getId()))
                 .isInstanceOf(UserNotFoundException.class);
 
-        verify(userRepository).findByIdWithInfoAndRoles(user.getId());
-        verify(userProfileInfoMapper, never()).toDto(any(), any(), any());
+        verify(userRepository, times(1)).findByIdWithInfoAndRoles(user.getId());
+        verify(userProfileInfoMapper, never()).toDto(any());
     }
 
     @Test
     void getUserProfileInfoPage_ShouldReturnUserProfileInfoPage() {
-        Page<User> userPage = new PageImpl<>(List.of(user));
         Pageable pageable = PageRequest.of(0, 10);
+        Page<User> userPage = new PageImpl<>(List.of(user));
 
-        when(userRepository.findAllWithInfoAndRoles(pageable))
-                .thenReturn(userPage);
-        when(userProfileInfoMapper.toDto(user, userInfo, Set.of(role)))
-                .thenReturn(userProfileInfoDto);
+        when(userRepository.findAllWithInfoAndRoles(pageable)).thenReturn(userPage);
+        when(userProfileInfoMapper.toDto(user)).thenReturn(userProfileInfoDto);
 
-        Page<UserProfileInfoDto> result = userService.getUserProfileInfoPage(pageable);
+        Page<UserProfileInfoDto> actualPage = userService.getUserProfileInfoPage(pageable);
 
-        assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().getFirst()).isEqualTo(userProfileInfoDto);
+        assertThat(actualPage.getContent())
+                .hasSize(1)
+                .contains(userProfileInfoDto);
 
-        verify(userRepository).findAllWithInfoAndRoles(pageable);
-        verify(userProfileInfoMapper).toDto(user, userInfo, Set.of(role));
+        verify(userRepository, times(1)).findAllWithInfoAndRoles(pageable);
+        verify(userProfileInfoMapper, times(1)).toDto(user);
     }
 }

@@ -8,8 +8,12 @@ import java.util.Objects;
 @Table(name = "genres_movies")
 public class GenreMovie {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "genres_movies_id")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "genresMoviesGenreMovieIdSeq")
+    @SequenceGenerator(
+            name = "genresMoviesGenreMovieIdSeq",
+            sequenceName = "genres_movies_genre_movie_id_seq",
+            allocationSize = 1)
+    @Column(name = "genre_movie_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -39,16 +43,7 @@ public class GenreMovie {
     }
 
     public void setMovie(Movie movie) {
-        if (this.movie != null) {
-            this.movie.getGenreMovie().remove(this);
-        }
-
         this.movie = movie;
-
-        if (movie != null) {
-            movie.getGenreMovie().add(this);
-        }
-
     }
 
     public Genre getGenre() {
@@ -56,15 +51,7 @@ public class GenreMovie {
     }
 
     public void setGenre(Genre genre) {
-        if (this.genre != null) {
-            this.genre.getGenreMovie().remove(this);
-        }
-
         this.genre = genre;
-
-        if (genre != null) {
-            genre.getGenreMovie().add(this);
-        }
     }
 
     @Override

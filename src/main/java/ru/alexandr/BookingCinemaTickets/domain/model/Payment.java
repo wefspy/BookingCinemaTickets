@@ -3,6 +3,7 @@ package ru.alexandr.BookingCinemaTickets.domain.model;
 import jakarta.persistence.*;
 import ru.alexandr.BookingCinemaTickets.domain.enums.PaymentStatus;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -10,12 +11,13 @@ import java.util.Objects;
 @Table(name = "payments")
 public class Payment {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "paymentsPaymentIdSeq")
+    @SequenceGenerator(name = "paymentsPaymentIdSeq", sequenceName = "payments_payment_id_seq", allocationSize = 1)
     @Column(name = "payment_id")
     private Long id;
 
     @Column(name = "amount", nullable = false)
-    private Double amount;
+    private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -34,7 +36,7 @@ public class Payment {
 
     public Payment(UserInfo userInfo,
                    Ticket ticket,
-                   Double amount,
+                   BigDecimal amount,
                    PaymentStatus status,
                    LocalDateTime paymentDate) {
         setUserInfo(userInfo);
@@ -57,15 +59,7 @@ public class Payment {
     }
 
     public void setUserInfo(UserInfo userInfo) {
-        if (this.userInfo != null) {
-            this.userInfo.getPayments().remove(this);
-        }
-
         this.userInfo = userInfo;
-
-        if (userInfo != null) {
-            userInfo.getPayments().add(this);
-        }
     }
 
     public Ticket getTicket() {
@@ -73,22 +67,14 @@ public class Payment {
     }
 
     public void setTicket(Ticket ticket) {
-        if (this.ticket != null) {
-            this.ticket.getPayments().remove(this);
-        }
-
         this.ticket = ticket;
-
-        if (ticket != null) {
-            ticket.getPayments().add(this);
-        }
     }
 
-    public Double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

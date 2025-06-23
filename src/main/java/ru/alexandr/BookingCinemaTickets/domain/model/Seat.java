@@ -11,7 +11,8 @@ import java.util.Set;
 @Table(name = "seats")
 public class Seat {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seatsSeatIdSeq")
+    @SequenceGenerator(name = "seatsSeatIdSeq", sequenceName = "seats_seat_id_seq", allocationSize = 1)
     @Column(name = "seat_id")
     private Long id;
 
@@ -55,15 +56,7 @@ public class Seat {
     }
 
     public void setHall(Hall hall) {
-        if (this.hall != null) {
-            this.hall.getSeats().remove(this);
-        }
-
         this.hall = hall;
-
-        if (hall != null) {
-            hall.getSeats().add(this);
-        }
     }
 
     public Integer getRowNumber() {
