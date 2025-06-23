@@ -37,6 +37,9 @@
         <spring-security.version>6.4.5</spring-security.version>
         <jbcrypt.version>0.4</jbcrypt.version>
         <jjwt.version>0.12.3</jjwt.version>
+
+        <!-- Tests -->
+        <webdrivermanager.version>6.1.0</webdrivermanager.version>
     </properties>
     <dependencies>
         <!-- WEB и MVC -->
@@ -143,6 +146,16 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.bonigarcia</groupId>
+            <artifactId>webdrivermanager</artifactId>
+            <version>${webdrivermanager.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
