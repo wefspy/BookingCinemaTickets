@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import ru.alexandr.BookingCinemaTickets.application.dto.RegisterDto;
 import ru.alexandr.BookingCinemaTickets.application.dto.UserProfileInfoDto;
 import ru.alexandr.BookingCinemaTickets.application.exception.RoleNotFoundException;
@@ -14,7 +15,7 @@ import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.RoleReposi
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.UserRepository;
 import ru.alexandr.BookingCinemaTickets.infrastructure.security.RoleEnum;
 
-
+@Profile("!test")
 @Configuration
 public class StartUpConfig implements ApplicationRunner {
     private final RoleRepository roleRepository;

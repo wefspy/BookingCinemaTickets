@@ -1,4 +1,4 @@
-package ru.alexandr.BookingCinemaTickets.testConfiguration;
+package ru.alexandr.BookingCinemaTickets.testUtils.configuration;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;

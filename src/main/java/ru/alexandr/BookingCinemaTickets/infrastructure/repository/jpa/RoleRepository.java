@@ -10,4 +10,6 @@ public interface RoleRepository extends CrudRepository<Role, Long> {
     Optional<Role> findByName(String name);
 
     Collection<Role> findByNameIn(Collection<String> names);
+
+    Collection<Role> findAllByRoleUserUserId(Long userId);
 }

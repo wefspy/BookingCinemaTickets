@@ -19,6 +19,7 @@ import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.UserReposi
 import ru.alexandr.BookingCinemaTickets.infrastructure.security.RoleEnum;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -74,7 +75,7 @@ public class RegistrationService {
     private UserInfo createUserInfo(User user, RegisterDto dto) {
         UserInfo userInfo = new UserInfo(
                 user,
-                LocalDateTime.now()
+                LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS)
         );
         userInfo.setEmail(dto.email());
         userInfo.setPhoneNumber(dto.phoneNumber());

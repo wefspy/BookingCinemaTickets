@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -18,10 +19,14 @@ import ru.alexandr.BookingCinemaTickets.application.exception.RoleNotFoundExcept
 import ru.alexandr.BookingCinemaTickets.application.exception.UsernameAlreadyTakenException;
 import ru.alexandr.BookingCinemaTickets.application.service.RegistrationService;
 import ru.alexandr.BookingCinemaTickets.controller.rest.RegistrationRestController;
+import ru.alexandr.BookingCinemaTickets.infrastructure.config.SecurityConfig;
+import ru.alexandr.BookingCinemaTickets.infrastructure.security.UserDetailsImpl;
+import ru.alexandr.BookingCinemaTickets.infrastructure.security.UserDetailsServiceImpl;
 import ru.alexandr.BookingCinemaTickets.infrastructure.security.jwt.JwtAuthenticationFilter;
+import ru.alexandr.BookingCinemaTickets.testUtils.asserts.ApiErrorDtoAssert;
+import ru.alexandr.BookingCinemaTickets.testUtils.url.ControllerUrls;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,8 +37,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = RegistrationRestController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class RegistrationRestControllerUnitTest {
-    private final String createUserWithInfoUrl = "/api/registration";
-
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -55,15 +58,15 @@ class RegistrationRestControllerUnitTest {
         UserProfileInfoDto userProfileInfoDto = new UserProfileInfoDto(
                 1L,
                 registerDto.username(),
-                List.of(new RoleDto(1L, "ROLE_USER")),
+                List.of(new RoleDto(1L, "USER")),
                 registerDto.email(),
                 registerDto.phoneNumber(),
-                LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
+                LocalDateTime.now()
         );
 
         when(registrationService.register(registerDto)).thenReturn(userProfileInfoDto);
 
-        MvcResult result = mockMvc.perform(post(createUserWithInfoUrl)
+        MvcResult result = mockMvc.perform(post(ControllerUrls.REGISTRATION)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerDto)))
                 .andExpect(status().is(200))
@@ -84,7 +87,7 @@ class RegistrationRestControllerUnitTest {
                 null
         );
 
-        mockMvc.perform(post(createUserWithInfoUrl)
+        mockMvc.perform(post(ControllerUrls.REGISTRATION)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerDto)))
                 .andExpect(status().is(200));
@@ -99,19 +102,17 @@ class RegistrationRestControllerUnitTest {
                 null
         );
 
-        MvcResult result = mockMvc.perform(post(createUserWithInfoUrl)
+        int expectedStatusCode = 400;
+        MvcResult result = mockMvc.perform(post(ControllerUrls.REGISTRATION)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerDto)))
-                .andExpect(status().is(400))
+                .andExpect(status().is(expectedStatusCode))
                 .andReturn();
 
         String content = result.getResponse().getContentAsString();
         ApiErrorDto error = objectMapper.readValue(content, ApiErrorDto.class);
 
-        assertThat(error.exceptionName()).isEqualTo(MethodArgumentNotValidException.class.getName());
-        assertThat(error.stackTrace()).isNotEmpty();
-        assertThat(error.statusCode()).isEqualTo(400);
-        assertThat(error.path()).isEqualTo(createUserWithInfoUrl);
+        assertError(error, MethodArgumentNotValidException.class.getName(), expectedStatusCode, ControllerUrls.REGISTRATION);
     }
 
     @Test
@@ -123,22 +124,20 @@ class RegistrationRestControllerUnitTest {
                 null
         );
 
-        when(registrationService.register(registerDto))
-                .thenThrow(new RoleNotFoundException(""));
+        int expectedStatusCode = 404;
+        Exception exception = new RoleNotFoundException("");
+        when(registrationService.register(registerDto)).thenThrow(exception);
 
-        MvcResult result = mockMvc.perform(post(createUserWithInfoUrl)
+        MvcResult result = mockMvc.perform(post(ControllerUrls.REGISTRATION)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerDto)))
-                .andExpect(status().is(404))
+                .andExpect(status().is(expectedStatusCode))
                 .andReturn();
 
         String content = result.getResponse().getContentAsString();
         ApiErrorDto error = objectMapper.readValue(content, ApiErrorDto.class);
 
-        assertThat(error.exceptionName()).isEqualTo(RoleNotFoundException.class.getName());
-        assertThat(error.stackTrace()).isNotEmpty();
-        assertThat(error.statusCode()).isEqualTo(404);
-        assertThat(error.path()).isEqualTo(createUserWithInfoUrl);
+        assertError(error, exception.getClass().getName(), expectedStatusCode, ControllerUrls.REGISTRATION);
     }
 
     @Test
@@ -150,22 +149,20 @@ class RegistrationRestControllerUnitTest {
                 null
         );
 
-        when(registrationService.register(registerDto))
-                .thenThrow(new UsernameAlreadyTakenException(""));
+        int expectedStatusCode = 409;
+        Exception exception = new UsernameAlreadyTakenException("");
+        when(registrationService.register(registerDto)).thenThrow(exception);
 
-        MvcResult result = mockMvc.perform(post(createUserWithInfoUrl)
+        MvcResult result = mockMvc.perform(post(ControllerUrls.REGISTRATION)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerDto)))
-                .andExpect(status().is(409))
+                .andExpect(status().is(expectedStatusCode))
                 .andReturn();
 
         String content = result.getResponse().getContentAsString();
         ApiErrorDto error = objectMapper.readValue(content, ApiErrorDto.class);
 
-        assertThat(error.exceptionName()).isEqualTo(UsernameAlreadyTakenException.class.getName());
-        assertThat(error.stackTrace()).isNotEmpty();
-        assertThat(error.statusCode()).isEqualTo(409);
-        assertThat(error.path()).isEqualTo(createUserWithInfoUrl);
+        assertError(error, exception.getClass().getName(), expectedStatusCode, ControllerUrls.REGISTRATION);
     }
 
     @Test
@@ -177,21 +174,31 @@ class RegistrationRestControllerUnitTest {
                 null
         );
 
-        when(registrationService.register(registerDto))
-                .thenThrow(new IllegalArgumentException(""));
+        int expectedStatusCode = 500;
+        Exception exception = new IllegalArgumentException("");
+        when(registrationService.register(registerDto)).thenThrow(exception);
 
-        MvcResult result = mockMvc.perform(post(createUserWithInfoUrl)
+        MvcResult result = mockMvc.perform(post(ControllerUrls.REGISTRATION)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerDto)))
-                .andExpect(status().is(500))
+                .andExpect(status().is(expectedStatusCode))
                 .andReturn();
 
         String content = result.getResponse().getContentAsString();
         ApiErrorDto error = objectMapper.readValue(content, ApiErrorDto.class);
 
-        assertThat(error.exceptionName()).isEqualTo(IllegalArgumentException.class.getName());
-        assertThat(error.stackTrace()).isNotEmpty();
-        assertThat(error.statusCode()).isEqualTo(500);
-        assertThat(error.path()).isEqualTo(createUserWithInfoUrl);
+        assertError(error, exception.getClass().getName(), expectedStatusCode, ControllerUrls.REGISTRATION);
+    }
+
+    void assertError(ApiErrorDto error,
+                     String exceptionName,
+                     int statusCode,
+                     String path) {
+        ApiErrorDtoAssert.assertThat(error)
+                .isNotNull()
+                .exceptionNameIsEqualTo(exceptionName)
+                .stackTraceIsNotEmpty()
+                .statusCodeIsEqualTo(statusCode)
+                .pathIsEqualTo(path);
     }
 }

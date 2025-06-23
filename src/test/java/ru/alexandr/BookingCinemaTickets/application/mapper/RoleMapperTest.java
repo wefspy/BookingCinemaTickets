@@ -4,12 +4,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.alexandr.BookingCinemaTickets.application.dto.RoleDto;
 import ru.alexandr.BookingCinemaTickets.domain.model.Role;
+import ru.alexandr.BookingCinemaTickets.testUtils.asserts.RoleDtoAssert;
+import ru.alexandr.BookingCinemaTickets.testUtils.asserts.RoleDtoCollectionAssert;
+import ru.alexandr.BookingCinemaTickets.testUtils.factory.TestEntityBuilder;
 
-import java.lang.reflect.Field;
 import java.util.Collection;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.List;
 
 class RoleMapperTest {
     private final RoleMapper roleMapper = new RoleMapper();
@@ -18,38 +18,24 @@ class RoleMapperTest {
     private Role roleManager;
 
     @BeforeEach
-    void setUp() throws Exception {
-        roleAdmin = new Role("ADMIN");
-        roleManager = new Role("MANAGER");
-
-        Field roleIdField = Role.class.getDeclaredField("id");
-        roleIdField.setAccessible(true);
-
-        roleIdField.set(roleAdmin, 1L);
-        roleIdField.set(roleManager, 2L);
+    void setUp() {
+        roleAdmin = TestEntityBuilder.role(1L, "ADMIN");
+        roleManager = TestEntityBuilder.role(2L, "MANAGER");
     }
 
     @Test
-    void getRoleDto_ShouldReturnCorrectRoleDto() {
-        RoleDto dtoActual = roleMapper.getRoleDto(roleAdmin);
+    void toDto() {
+        RoleDto actualDto = roleMapper.toDto(roleAdmin);
 
-        assertThat(dtoActual.id()).isEqualTo(roleAdmin.getId());
-        assertThat(dtoActual.name()).isEqualTo(roleAdmin.getName());
+        RoleDtoAssert.assertThat(actualDto).isEqualTo(roleAdmin);
     }
 
     @Test
-    void getRoleDtos_ShouldReturnCorrectRoleDtos() {
-        Set<Role> roles = Set.of(roleAdmin, roleManager);
+    void toDtos() {
+        List<Role> roles = List.of(roleAdmin, roleManager);
 
-        Collection<RoleDto> dtos = roleMapper.getRoleDtos(roles);
+        Collection<RoleDto> dtos = roleMapper.toDtos(roles);
 
-        assertThat(dtos)
-                .hasSize(roles.size())
-                .extracting(RoleDto::id)
-                .containsAll(
-                        roles.stream()
-                                .map(Role::getId)
-                                .toList()
-                );
+        RoleDtoCollectionAssert.assertThat(dtos).isEqualTo(roles);
     }
 }
