@@ -1,4 +1,4 @@
-package ru.alexandr.BookingCinemaTickets.controller.view;
+package ru.alexandr.BookingCinemaTickets.controller.web;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

@@ -1,4 +1,4 @@
-package ru.alexandr.BookingCinemaTickets.controller;
+package ru.alexandr.BookingCinemaTickets.controller.rest;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.alexandr.BookingCinemaTickets.application.dto.ApiErrorDto;
 import ru.alexandr.BookingCinemaTickets.application.exception.RoleNotFoundException;
@@ -16,8 +17,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-@RestControllerAdvice
-public class ExceptionControllerAdvice {
+@RestControllerAdvice(annotations = RestController.class)
+public class RestExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiErrorDto> exception(MethodArgumentNotValidException exception,
