@@ -18,7 +18,7 @@ import ru.alexandr.BookingCinemaTickets.domain.model.Role;
 import ru.alexandr.BookingCinemaTickets.domain.model.User;
 import ru.alexandr.BookingCinemaTickets.domain.model.UserInfo;
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.UserRepository;
-import ru.alexandr.BookingCinemaTickets.testUtils.factory.TestEntityBuilder;
+import ru.alexandr.BookingCinemaTickets.testUtils.factory.TestEntityFactory;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -48,8 +48,8 @@ public class UserServiceUnitTest {
 
     @BeforeEach
     void setUp() {
-        user = TestEntityBuilder.user(1L, "username", "password");
-        userInfo = TestEntityBuilder.userInfo(user.getId(), user, LocalDateTime.now());
+        user = TestEntityFactory.user(1L, "username", "password");
+        userInfo = TestEntityFactory.userInfo(user.getId(), user, LocalDateTime.now());
         role = new Role("USER");
 
         userProfileInfoDto = new UserProfileInfoDto(

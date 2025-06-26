@@ -20,7 +20,7 @@ public class RegistrationController {
     }
 
     @PostMapping("/registration")
-    public String registerUser(RegisterDto dto) {
+    public String register(RegisterDto dto) {
         registrationService.register(dto);
         return "redirect:/login";
     }

@@ -21,7 +21,7 @@ import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.RoleUserRe
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.UserInfoRepository;
 import ru.alexandr.BookingCinemaTickets.infrastructure.repository.jpa.UserRepository;
 import ru.alexandr.BookingCinemaTickets.infrastructure.security.RoleEnum;
-import ru.alexandr.BookingCinemaTickets.testUtils.factory.TestEntityBuilder;
+import ru.alexandr.BookingCinemaTickets.testUtils.factory.TestEntityFactory;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -65,11 +65,11 @@ class RegistrationServiceUnitTest {
 
     @BeforeEach
     void setUp() {
-        user = TestEntityBuilder.user(1L, registerDto.username(), registerDto.password());
-        userInfo = TestEntityBuilder.userInfo(user.getId(), user, LocalDateTime.now());
-        role = TestEntityBuilder.role(1L, RoleEnum.USER.name());
+        user = TestEntityFactory.user(1L, registerDto.username(), registerDto.password());
+        userInfo = TestEntityFactory.userInfo(user.getId(), user, LocalDateTime.now());
+        role = TestEntityFactory.role(1L, RoleEnum.USER.name());
         roles = List.of(role);
-        roleUser = TestEntityBuilder.roleUser(1L, user, role);
+        roleUser = TestEntityFactory.roleUser(1L, user, role);
 
         userProfileInfoDto = new UserProfileInfoDto(
                 user.getId(),

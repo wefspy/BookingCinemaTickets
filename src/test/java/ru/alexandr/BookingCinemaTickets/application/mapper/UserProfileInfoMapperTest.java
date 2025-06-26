@@ -15,7 +15,7 @@ import ru.alexandr.BookingCinemaTickets.domain.model.RoleUser;
 import ru.alexandr.BookingCinemaTickets.domain.model.User;
 import ru.alexandr.BookingCinemaTickets.domain.model.UserInfo;
 import ru.alexandr.BookingCinemaTickets.testUtils.asserts.UserProfileInfoDtoAssert;
-import ru.alexandr.BookingCinemaTickets.testUtils.factory.TestEntityBuilder;
+import ru.alexandr.BookingCinemaTickets.testUtils.factory.TestEntityFactory;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -35,9 +35,9 @@ class UserProfileInfoMapperTest {
 
     @BeforeEach
     void setUp() {
-        user = TestEntityBuilder.user(1L, "username", "password");
-        userInfo = TestEntityBuilder.userInfo(user.getId(), user, LocalDateTime.now());
-        role = TestEntityBuilder.role(1L, "user");
+        user = TestEntityFactory.user(1L, "username", "password");
+        userInfo = TestEntityFactory.userInfo(user.getId(), user, LocalDateTime.now());
+        role = TestEntityFactory.role(1L, "user");
         roles = Set.of(role);
     }
 
@@ -63,7 +63,7 @@ class UserProfileInfoMapperTest {
     @Test
     void toDto_shouldMapCorrectly_whenGetUserWithInfoAndRoles() {
         user.setUserInfo(userInfo);
-        RoleUser roleUser = TestEntityBuilder.roleUser(1L, user, role);
+        RoleUser roleUser = TestEntityFactory.roleUser(1L, user, role);
         user.getRoleUser().add(roleUser);
 
         Mockito.when(roleMapper.toDtos(roles)).thenReturn(Set.of(new RoleDto(role.getId(), role.getName())));
