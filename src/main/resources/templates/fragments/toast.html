@@ -56,6 +56,7 @@
 <body>
 <div th:fragment="toast(message, type)" th:if="${message != null}">
   <div id="toast-notification"
+       th:data-type="${type}"
        th:class="|toast-enter bg-${type}-100 border-l-4 border-${type}-500 text-${type}-700 p-4 rounded shadow-lg|">
     <div class="flex items-center">
       <div class="py-1">
@@ -78,11 +79,12 @@
         <p class="font-bold"
            th:text="${type == 'red'} ? 'Ошибка' : (${type == 'green'} ? 'Успех' : 'Предупреждение')">
           Уведомление</p>
-        <p class="text-sm" th:text="${message}"></p>
+        <p id="toast-notification-ms-text" class="text-sm" th:text="${message}"></p>
       </div>
       <div class="ml-auto pl-3">
         <div class="-mx-1.5 -my-1.5">
           <button type="button"
+                  id="toast-notification-close-btn"
                   onclick="dismissToast()"
                   class="toast-close-button inline-flex rounded-md p-1.5 focus:outline-none"
                   th:class="|text-${type}-500|">
