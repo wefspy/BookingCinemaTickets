@@ -3,6 +3,7 @@ package ru.alexandr.BookingCinemaTickets.controller.rest;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -32,6 +33,17 @@ public class RestExceptionHandler {
                 exception,
                 userMessage,
                 HttpStatus.BAD_REQUEST,
+                request
+        );
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiErrorDto> exception(BadCredentialsException exception,
+                                                 HttpServletRequest request) {
+        return buildErrorResponse(
+                exception,
+                exception.getMessage(),
+                HttpStatus.UNAUTHORIZED,
                 request
         );
     }

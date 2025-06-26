@@ -1,5 +1,6 @@
 package ru.alexandr.BookingCinemaTickets.controller.web;
 
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -16,6 +17,11 @@ public class WebExceptionHandler {
 
     @ExceptionHandler(UsernameAlreadyTakenException.class)
     public void exception(UsernameAlreadyTakenException exception, Model model) {
+        model.addAttribute("error", exception.getMessage());
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public void exception(BadCredentialsException exception, Model model) {
         model.addAttribute("error", exception.getMessage());
     }
 }
