@@ -1,6 +1,7 @@
 package ru.alexandr.BookingCinemaTickets.infrastructure.security.jwt.parser;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.SignatureException;
 import ru.alexandr.BookingCinemaTickets.application.exception.ClaimNotFoundException;
 import ru.alexandr.BookingCinemaTickets.application.exception.InvalidJwtTokenTypeException;
 import ru.alexandr.BookingCinemaTickets.infrastructure.security.jwt.JwtKeyProvider;
@@ -47,10 +48,11 @@ public abstract class AbstractJwtTokenParser {
         try {
             getClaims(token);
             return true;
-        } catch (MalformedJwtException |
-                 ExpiredJwtException |
-                 UnsupportedJwtException |
-                 IllegalArgumentException e) {
+        } catch (MalformedJwtException
+                 | ExpiredJwtException
+                 | UnsupportedJwtException
+                 | SignatureException
+                 | IllegalArgumentException e) {
             return false;
         }
     }
