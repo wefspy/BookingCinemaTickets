@@ -1,4 +1,4 @@
-package ru.alexandr.BookingCinemaTickets.controller;
+package ru.alexandr.BookingCinemaTickets.controller.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,7 @@ import ru.alexandr.BookingCinemaTickets.application.dto.UserProfileInfoDto;
 import ru.alexandr.BookingCinemaTickets.testUtils.annotation.PostgreSQLTestContainer;
 import ru.alexandr.BookingCinemaTickets.testUtils.annotation.TestActiveProfile;
 import ru.alexandr.BookingCinemaTickets.testUtils.asserts.UserProfileInfoDtoAssert;
-import ru.alexandr.BookingCinemaTickets.testUtils.url.ControllerUrls;
+import ru.alexandr.BookingCinemaTickets.testUtils.constant.RestControllerUrls;
 
 import java.time.LocalDateTime;
 
@@ -43,7 +43,7 @@ public class RegistrationRestControllerIntegrationTest {
     @Test
     void createUserWithInfo_ShouldCreateUser() throws Exception {
         LocalDateTime startRegister = LocalDateTime.now();
-        MvcResult result = mockMvc.perform(post(ControllerUrls.REGISTRATION)
+        MvcResult result = mockMvc.perform(post(RestControllerUrls.REGISTRATION)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerDto)))
                 .andExpect(status().is(200))

@@ -1,11 +1,10 @@
-package ru.alexandr.BookingCinemaTickets.controller;
+package ru.alexandr.BookingCinemaTickets.controller.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -18,13 +17,9 @@ import ru.alexandr.BookingCinemaTickets.application.dto.UserProfileInfoDto;
 import ru.alexandr.BookingCinemaTickets.application.exception.RoleNotFoundException;
 import ru.alexandr.BookingCinemaTickets.application.exception.UsernameAlreadyTakenException;
 import ru.alexandr.BookingCinemaTickets.application.service.RegistrationService;
-import ru.alexandr.BookingCinemaTickets.controller.rest.RegistrationRestController;
-import ru.alexandr.BookingCinemaTickets.infrastructure.config.SecurityConfig;
-import ru.alexandr.BookingCinemaTickets.infrastructure.security.UserDetailsImpl;
-import ru.alexandr.BookingCinemaTickets.infrastructure.security.UserDetailsServiceImpl;
-import ru.alexandr.BookingCinemaTickets.infrastructure.security.jwt.JwtAuthenticationFilter;
+import ru.alexandr.BookingCinemaTickets.infrastructure.security.filter.JwtAuthenticationFilter;
 import ru.alexandr.BookingCinemaTickets.testUtils.asserts.ApiErrorDtoAssert;
-import ru.alexandr.BookingCinemaTickets.testUtils.url.ControllerUrls;
+import ru.alexandr.BookingCinemaTickets.testUtils.constant.RestControllerUrls;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -66,7 +61,7 @@ class RegistrationRestControllerUnitTest {
 
         when(registrationService.register(registerDto)).thenReturn(userProfileInfoDto);
 
-        MvcResult result = mockMvc.perform(post(ControllerUrls.REGISTRATION)
+        MvcResult result = mockMvc.perform(post(RestControllerUrls.REGISTRATION)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerDto)))
                 .andExpect(status().is(200))
@@ -87,7 +82,7 @@ class RegistrationRestControllerUnitTest {
                 null
         );
 
-        mockMvc.perform(post(ControllerUrls.REGISTRATION)
+        mockMvc.perform(post(RestControllerUrls.REGISTRATION)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerDto)))
                 .andExpect(status().is(200));
@@ -103,7 +98,7 @@ class RegistrationRestControllerUnitTest {
         );
 
         int expectedStatusCode = 400;
-        MvcResult result = mockMvc.perform(post(ControllerUrls.REGISTRATION)
+        MvcResult result = mockMvc.perform(post(RestControllerUrls.REGISTRATION)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerDto)))
                 .andExpect(status().is(expectedStatusCode))
@@ -112,7 +107,7 @@ class RegistrationRestControllerUnitTest {
         String content = result.getResponse().getContentAsString();
         ApiErrorDto error = objectMapper.readValue(content, ApiErrorDto.class);
 
-        assertError(error, MethodArgumentNotValidException.class.getName(), expectedStatusCode, ControllerUrls.REGISTRATION);
+        assertError(error, MethodArgumentNotValidException.class.getName(), expectedStatusCode, RestControllerUrls.REGISTRATION);
     }
 
     @Test
@@ -128,7 +123,7 @@ class RegistrationRestControllerUnitTest {
         Exception exception = new RoleNotFoundException("");
         when(registrationService.register(registerDto)).thenThrow(exception);
 
-        MvcResult result = mockMvc.perform(post(ControllerUrls.REGISTRATION)
+        MvcResult result = mockMvc.perform(post(RestControllerUrls.REGISTRATION)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerDto)))
                 .andExpect(status().is(expectedStatusCode))
@@ -137,7 +132,7 @@ class RegistrationRestControllerUnitTest {
         String content = result.getResponse().getContentAsString();
         ApiErrorDto error = objectMapper.readValue(content, ApiErrorDto.class);
 
-        assertError(error, exception.getClass().getName(), expectedStatusCode, ControllerUrls.REGISTRATION);
+        assertError(error, exception.getClass().getName(), expectedStatusCode, RestControllerUrls.REGISTRATION);
     }
 
     @Test
@@ -153,7 +148,7 @@ class RegistrationRestControllerUnitTest {
         Exception exception = new UsernameAlreadyTakenException("");
         when(registrationService.register(registerDto)).thenThrow(exception);
 
-        MvcResult result = mockMvc.perform(post(ControllerUrls.REGISTRATION)
+        MvcResult result = mockMvc.perform(post(RestControllerUrls.REGISTRATION)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerDto)))
                 .andExpect(status().is(expectedStatusCode))
@@ -162,7 +157,7 @@ class RegistrationRestControllerUnitTest {
         String content = result.getResponse().getContentAsString();
         ApiErrorDto error = objectMapper.readValue(content, ApiErrorDto.class);
 
-        assertError(error, exception.getClass().getName(), expectedStatusCode, ControllerUrls.REGISTRATION);
+        assertError(error, exception.getClass().getName(), expectedStatusCode, RestControllerUrls.REGISTRATION);
     }
 
     @Test
@@ -178,7 +173,7 @@ class RegistrationRestControllerUnitTest {
         Exception exception = new IllegalArgumentException("");
         when(registrationService.register(registerDto)).thenThrow(exception);
 
-        MvcResult result = mockMvc.perform(post(ControllerUrls.REGISTRATION)
+        MvcResult result = mockMvc.perform(post(RestControllerUrls.REGISTRATION)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerDto)))
                 .andExpect(status().is(expectedStatusCode))
@@ -187,7 +182,7 @@ class RegistrationRestControllerUnitTest {
         String content = result.getResponse().getContentAsString();
         ApiErrorDto error = objectMapper.readValue(content, ApiErrorDto.class);
 
-        assertError(error, exception.getClass().getName(), expectedStatusCode, ControllerUrls.REGISTRATION);
+        assertError(error, exception.getClass().getName(), expectedStatusCode, RestControllerUrls.REGISTRATION);
     }
 
     void assertError(ApiErrorDto error,
