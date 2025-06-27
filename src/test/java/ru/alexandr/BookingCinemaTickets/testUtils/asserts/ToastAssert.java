@@ -3,7 +3,7 @@ package ru.alexandr.BookingCinemaTickets.testUtils.asserts;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
 import ru.alexandr.BookingCinemaTickets.controller.web.enums.ToastType;
-import ru.alexandr.BookingCinemaTickets.e2e.fragment.ToastFragment;
+import ru.alexandr.BookingCinemaTickets.testUtils.ui.fragment.ToastFragment;
 
 public class ToastAssert extends AbstractAssert<ToastAssert, ToastFragment> {
     protected ToastAssert(ToastFragment toastFragment) {

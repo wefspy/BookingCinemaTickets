@@ -1,4 +1,4 @@
-package ru.alexandr.BookingCinemaTickets.e2e.page;
+package ru.alexandr.BookingCinemaTickets.testUtils.ui.page;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -7,8 +7,7 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import ru.alexandr.BookingCinemaTickets.testUtils.constant.WaitConstant;
-
-import java.time.Duration;
+import jakarta.annotation.Nonnull;
 
 public class RegistrationPage {
     private final WebDriver driver;
@@ -41,44 +40,38 @@ public class RegistrationPage {
         PageFactory.initElements(driver, this);
     }
 
-    public void enterUsername(String username) {
+    public RegistrationPage enterUsername(@Nonnull String username) {
         wait.until(ExpectedConditions.visibilityOf(usernameInput)).sendKeys(username);
+        return this;
     }
 
-    public void enterEmail(String email) {
+    public RegistrationPage enterEmail(@Nonnull String email) {
         wait.until(ExpectedConditions.visibilityOf(emailInput)).sendKeys(email);
+        return this;
     }
 
-    public void enterPhoneNumber(String phoneNumber) {
+    public RegistrationPage enterPhoneNumber(@Nonnull String phoneNumber) {
         wait.until(ExpectedConditions.visibilityOf(phoneNumberInput)).sendKeys(phoneNumber);
+        return this;
     }
 
-    public void enterPassword(String password) {
+    public RegistrationPage enterPassword(@Nonnull String password) {
         wait.until(ExpectedConditions.visibilityOf(passwordInput)).sendKeys(password);
+        return this;
     }
 
-    public void enterConfirmPassword(String confirmPassword) {
+    public RegistrationPage enterConfirmPassword(@Nonnull String confirmPassword) {
         wait.until(ExpectedConditions.visibilityOf(confirmPasswordInput)).sendKeys(confirmPassword);
+        return this;
     }
 
-    public void clickRegisterButton() {
+    public RegistrationPage clickRegisterButton() {
         wait.until(ExpectedConditions.elementToBeClickable(registerButton)).click();
+        return this;
     }
 
-    public void clickLoginLink() {
+    public RegistrationPage clickLoginLink() {
         wait.until(ExpectedConditions.elementToBeClickable(loginLink)).click();
-    }
-
-    public void register(String username,
-                         String email,
-                         String phoneNumber,
-                         String password,
-                         String confirmPassword) {
-        enterUsername(username);
-        enterEmail(email);
-        enterPhoneNumber(phoneNumber);
-        enterPassword(password);
-        enterConfirmPassword(confirmPassword);
-        clickRegisterButton();
+        return this;
     }
 }

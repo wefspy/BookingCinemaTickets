@@ -1,5 +1,6 @@
-package ru.alexandr.BookingCinemaTickets.e2e.page;
+package ru.alexandr.BookingCinemaTickets.testUtils.ui.page;
 
+import jakarta.annotation.Nonnull;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -7,8 +8,6 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import ru.alexandr.BookingCinemaTickets.testUtils.constant.WaitConstant;
-
-import java.time.Duration;
 
 public class LoginPage {
     private final WebDriver driver;
@@ -32,25 +31,23 @@ public class LoginPage {
         PageFactory.initElements(driver, this);
     }
 
-    public void enterUsername(String username) {
+    public LoginPage enterUsername(@Nonnull String username) {
         wait.until(ExpectedConditions.visibilityOf(usernameInput)).sendKeys(username);
+        return this;
     }
 
-    public void enterPassword(String password) {
+    public LoginPage enterPassword(@Nonnull String password) {
         wait.until(ExpectedConditions.visibilityOf(passwordInput)).sendKeys(password);
+        return this;
     }
 
-    public void clickLoginButton() {
+    public LoginPage clickLoginButton() {
         wait.until(ExpectedConditions.elementToBeClickable(loginButton)).click();
+        return this;
     }
 
-    public void clickRegisterLink() {
+    public LoginPage clickRegisterLink() {
         wait.until(ExpectedConditions.elementToBeClickable(registerLink)).click();
-    }
-
-    public void login(String username, String password) {
-        enterUsername(username);
-        enterPassword(password);
-        clickLoginButton();
+        return this;
     }
 }

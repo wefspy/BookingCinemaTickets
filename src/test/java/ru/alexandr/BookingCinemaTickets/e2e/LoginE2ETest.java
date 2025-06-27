@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.alexandr.BookingCinemaTickets.application.dto.RegisterDto;
 import ru.alexandr.BookingCinemaTickets.application.service.RegistrationService;
 import ru.alexandr.BookingCinemaTickets.controller.web.enums.ToastType;
-import ru.alexandr.BookingCinemaTickets.e2e.fragment.ToastFragment;
-import ru.alexandr.BookingCinemaTickets.e2e.page.LoginPage;
+import ru.alexandr.BookingCinemaTickets.testUtils.ui.fragment.ToastFragment;
+import ru.alexandr.BookingCinemaTickets.testUtils.ui.page.LoginPage;
 import ru.alexandr.BookingCinemaTickets.testUtils.asserts.ToastAssert;
 import ru.alexandr.BookingCinemaTickets.testUtils.constant.ControllerUrls;
 
@@ -35,7 +35,9 @@ public class LoginE2ETest extends BaseE2ETest {
         LoginPage loginPage = new LoginPage(getDriver());
         ToastFragment toast = new ToastFragment(getDriver());
 
-        loginPage.login(registerDto.username(), registerDto.password());
+        loginPage.enterUsername(registerDto.username())
+                .enterPassword(registerDto.password())
+                .clickLoginButton();
 
         ToastAssert.assertThat(toast).isNotVisible();
         Assertions.assertThat(getDriver().getCurrentUrl()).isNotEqualTo(pageFullURL);
@@ -47,10 +49,13 @@ public class LoginE2ETest extends BaseE2ETest {
         LoginPage loginPage = new LoginPage(getDriver());
         ToastFragment toast = new ToastFragment(getDriver());
 
-        loginPage.login(registerDto.username() + "NOT-EXISTS", registerDto.password());
+        loginPage.enterUsername(registerDto.username() + "NOT-EXISTS")
+                .enterPassword(registerDto.password())
+                .clickLoginButton();
 
         ToastAssert.assertThat(toast)
                 .isVisible()
                 .hasType(ToastType.ERROR);
-        Assertions.assertThat(getDriver().getCurrentUrl()).isEqualTo(pageFullURL);    }
+        Assertions.assertThat(getDriver().getCurrentUrl()).isEqualTo(pageFullURL);
+    }
 }

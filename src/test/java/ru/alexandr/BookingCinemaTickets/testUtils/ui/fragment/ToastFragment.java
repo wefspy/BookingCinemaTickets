@@ -1,4 +1,4 @@
-package ru.alexandr.BookingCinemaTickets.e2e.fragment;
+package ru.alexandr.BookingCinemaTickets.testUtils.ui.fragment;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
