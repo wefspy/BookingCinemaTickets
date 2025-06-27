@@ -6,7 +6,7 @@ import ru.alexandr.BookingCinemaTickets.application.dto.RoleDto;
 import ru.alexandr.BookingCinemaTickets.domain.model.Role;
 import ru.alexandr.BookingCinemaTickets.testUtils.asserts.RoleDtoAssert;
 import ru.alexandr.BookingCinemaTickets.testUtils.asserts.RoleDtoCollectionAssert;
-import ru.alexandr.BookingCinemaTickets.testUtils.factory.TestEntityBuilder;
+import ru.alexandr.BookingCinemaTickets.testUtils.factory.TestEntityFactory;
 
 import java.util.Collection;
 import java.util.List;
@@ -19,8 +19,8 @@ class RoleMapperTest {
 
     @BeforeEach
     void setUp() {
-        roleAdmin = TestEntityBuilder.role(1L, "ADMIN");
-        roleManager = TestEntityBuilder.role(2L, "MANAGER");
+        roleAdmin = TestEntityFactory.role(1L, "ADMIN");
+        roleManager = TestEntityFactory.role(2L, "MANAGER");
     }
 
     @Test

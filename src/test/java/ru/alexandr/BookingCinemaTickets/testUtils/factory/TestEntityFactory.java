@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public class TestEntityBuilder {
+public class TestEntityFactory {
     public static Genre genre(Long id, String name) {
         Genre genre = new Genre(name);
         setId(genre, id);

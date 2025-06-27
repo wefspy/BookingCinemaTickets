@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <style th:fragment="toast-styles">
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+
+    .toast-enter {
+      animation: slideIn 0.5s ease forwards;
+    }
+
+    .toast-exit {
+      animation: slideOut 0.5s ease forwards;
+    }
+
+    #toast-notification {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 50;
+      min-width: 300px;
+      max-width: 450px;
+    }
+
+    .toast-close-button {
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .toast-close-button:hover {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+<div th:fragment="toast(message, type)" th:if="${message != null}">
+  <div id="toast-notification"
+       th:data-type="${type}"
+       th:class="|toast-enter bg-${type}-100 border-l-4 border-${type}-500 text-${type}-700 p-4 rounded shadow-lg|">
+    <div class="flex items-center">
+      <div class="py-1">
+        <svg th:if="${type == 'red'}" class="h-6 w-6 text-red-500 mr-4" xmlns="http://www.w3.org/2000/svg"
+             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <svg th:if="${type == 'green'}" class="h-6 w-6 text-green-500 mr-4" xmlns="http://www.w3.org/2000/svg"
+             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+        <svg th:if="${type == 'yellow'}" class="h-6 w-6 text-yellow-500 mr-4" xmlns="http://www.w3.org/2000/svg"
+             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+      </div>
+      <div class="flex-grow">
+        <p class="font-bold"
+           th:text="${type == 'red'} ? 'Ошибка' : (${type == 'green'} ? 'Успех' : 'Предупреждение')">
+          Уведомление</p>
+        <p id="toast-notification-ms-text" class="text-sm" th:text="${message}"></p>
+      </div>
+      <div class="ml-auto pl-3">
+        <div class="-mx-1.5 -my-1.5">
+          <button type="button"
+                  id="toast-notification-close-btn"
+                  onclick="dismissToast()"
+                  class="toast-close-button inline-flex rounded-md p-1.5 focus:outline-none"
+                  th:class="|text-${type}-500|">
+            <span class="sr-only">Закрыть</span>
+            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script th:fragment="toast-script">
+  document.addEventListener('DOMContentLoaded', function() {
+    const toast = document.getElementById('toast-notification');
+    if (toast) {
+      setTimeout(() => {
+        dismissToast();
+      }, 5000);
+    }
+  });
+
+  function dismissToast() {
+    const toast = document.getElementById('toast-notification');
+    if (toast) {
+      toast.classList.remove('toast-enter');
+      toast.classList.add('toast-exit');
+      setTimeout(() => {
+        if (toast.parentElement) {
+          toast.parentElement.removeChild(toast);
+        }
+      }, 500);
+    }
+  }
+</script>
+</body>
+</html>

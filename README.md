@@ -27,7 +27,8 @@
 - **Фреймворк**: Spring Boot 3.4.3
 - **База данных**: PostgreSQL
 - **Миграции БД**: Liquibase
-- **Тестирование**: JUnit, AssertJ, Mockito, Testcontainers
+- **GUI**: Thymeleaf
+- **Тестирование**: JUnit, AssertJ, Mockito, Testcontainers, Selenium
 
 ## 🛠️ Подготовка к запуску
 

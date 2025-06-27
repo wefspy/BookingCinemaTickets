@@ -2,6 +2,8 @@ package ru.alexandr.BookingCinemaTickets.infrastructure.security.jwt.parser;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import ru.alexandr.BookingCinemaTickets.application.exception.ClaimNotFoundException;
@@ -11,7 +13,10 @@ import ru.alexandr.BookingCinemaTickets.infrastructure.security.jwt.dto.JwtToken
 import ru.alexandr.BookingCinemaTickets.infrastructure.security.jwt.enums.JwtClaims;
 import ru.alexandr.BookingCinemaTickets.infrastructure.security.jwt.enums.JwtTokenType;
 
+import javax.crypto.SecretKey;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -97,6 +102,35 @@ class AbstractJwtTokenParserTest extends BaseJwtTest {
     @Test
     void isValid_ShouldReturnFalse_WhenGivenInvalidToken() {
         Boolean actual = abstractJwtTokenParser.isValid("InvalidToken");
+
+        assertThat(actual).isFalse();
+    }
+
+    @Test
+    void isValid_ShouldReturnFalse_WhenGivenExpiredToken() {
+        String expiredToken = Jwts.builder()
+                .claims(claims)
+                .issuedAt(Date.from(Instant.now().minusSeconds(3600)))
+                .expiration(Date.from(Instant.now().minusSeconds(1800)))
+                .signWith(jwtKeyProvider.getSignKey())
+                .compact();
+
+        Boolean actual = abstractJwtTokenParser.isValid(expiredToken);
+
+        assertThat(actual).isFalse();
+    }
+
+    @Test
+    void isValid_ShouldReturnFalse_WhenGivenSomeoneElseToken() {
+        byte[] keyBytes = Decoders.BASE64URL.decode(jwtProperties.getSecret() + "jWj");
+        SecretKey secretKey = Keys.hmacShaKeyFor(keyBytes);
+
+        String someoneElseToken = Jwts.builder()
+                .claims(claims)
+                .signWith(secretKey)
+                .compact();
+
+        Boolean actual = abstractJwtTokenParser.isValid(someoneElseToken);
 
         assertThat(actual).isFalse();
     }

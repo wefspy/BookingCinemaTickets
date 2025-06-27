@@ -1,4 +1,4 @@
-package ru.alexandr.BookingCinemaTickets.controller.view;
+package ru.alexandr.BookingCinemaTickets.controller.web;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,10 +7,10 @@ import ru.alexandr.BookingCinemaTickets.application.dto.RegisterDto;
 import ru.alexandr.BookingCinemaTickets.application.service.RegistrationService;
 
 @Controller
-public class RegistrationControllerView {
+public class RegistrationController {
     private final RegistrationService registrationService;
 
-    public RegistrationControllerView(RegistrationService registrationService) {
+    public RegistrationController(RegistrationService registrationService) {
         this.registrationService = registrationService;
     }
 
@@ -20,7 +20,7 @@ public class RegistrationControllerView {
     }
 
     @PostMapping("/registration")
-    public String registerUser(RegisterDto dto) {
+    public String register(RegisterDto dto) {
         registrationService.register(dto);
         return "redirect:/login";
     }

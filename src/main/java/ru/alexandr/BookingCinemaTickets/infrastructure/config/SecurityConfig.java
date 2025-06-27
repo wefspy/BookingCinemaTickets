@@ -15,7 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import ru.alexandr.BookingCinemaTickets.infrastructure.security.RoleEnum;
-import ru.alexandr.BookingCinemaTickets.infrastructure.security.jwt.JwtAuthenticationFilter;
+import ru.alexandr.BookingCinemaTickets.infrastructure.security.filter.JwtAuthenticationFilter;
 
 @Configuration
 @EnableMethodSecurity
@@ -66,6 +66,7 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
                         .defaultSuccessUrl("/users", true)
+                        .failureUrl("/login")
                         .permitAll()
                 ).logout(logout -> logout
                         .logoutUrl("/logout")
