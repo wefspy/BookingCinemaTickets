@@ -14,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import ru.alexandr.BookingCinemaTickets.infrastructure.config.property.JavaMelodyProperties;
 import ru.alexandr.BookingCinemaTickets.infrastructure.security.RoleEnum;
 import ru.alexandr.BookingCinemaTickets.infrastructure.security.filter.JwtAuthenticationFilter;
 
@@ -50,10 +51,42 @@ public class SecurityConfig {
     }
 
     /**
-     * Для HTML - Stateful + formLogin
+     * Для Actuator endpoints
      */
     @Bean
     @Order(2)
+    public SecurityFilterChain actuatorSecurityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher("/actuator/**")
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll()
+                )
+                .build();
+    }
+
+    /**
+     * Для JavaMelody endpoints
+     */
+    @Bean
+    @Order(3)
+    public SecurityFilterChain javaMelodySecurityFilterChain(HttpSecurity http,
+                                                             JavaMelodyProperties javaMelodyProperties) throws Exception {
+        String javaMelodyUrl = javaMelodyProperties.getMonitoringPath() + "/**";
+        return http
+                .securityMatcher(javaMelodyUrl)
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().hasRole(RoleEnum.ADMIN.name())
+                )
+                .build();
+    }
+
+    /**
+     * Для HTML - Stateful + formLogin
+     */
+    @Bean
+    @Order(4)
     public SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .securityMatcher("/**")
