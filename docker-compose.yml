@@ -23,15 +23,135 @@ services:
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
       - SPRING_PROFILES_ACTIVE=prod
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=*
+      - MANAGEMENT_PROMETHEUS_METRICS_EXPORT_ENABLED=true
     deploy:
       resources:
         limits:
           memory: 512M
+          cpus: '1'
         reservations:
           memory: 256M
+          cpus: '0.5'
     networks:
       - app-network
 
+  prometheus:
+    container_name: booking-cinema-tickets-prometheus
+    image: prom/prometheus:v3.4.0
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--storage.tsdb.retention.time=15d'
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1'
+        reservations:
+          memory: 256M
+          cpus: '0.5'
+    depends_on:
+      app:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  node-exporter:
+    container_name: booking-cinema-tickets-node-exporter
+    image: prom/node-exporter:v1.9.0
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    ports:
+      - "9100:9100"
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.5'
+        reservations:
+          memory: 64M
+          cpus: '0.2'
+    networks:
+      - app-network
+
+  postgres-exporter:
+    container_name: booking-cinema-tickets-postgres-exporter
+    image: prometheuscommunity/postgres-exporter:v0.17.1
+    restart: unless-stopped
+    ports:
+      - "9187:9187"
+    environment:
+      - DATA_SOURCE_NAME=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          cpus: '0.2'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  grafana:
+    container_name: booking-cinema-tickets-grafana
+    image: grafana/grafana:12.0.2
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_AUTH_DISABLE_LOGIN_FORM=false
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_SECURITY_ALLOW_EMBEDDING=false
+      - GF_SECURITY_DISABLE_GRAVATAR=true
+      - GF_SECURITY_COOKIE_SECURE=true
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana/dashboards:/etc/grafana/dashboards:ro
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1'
+        reservations:
+          memory: 256M
+          cpus: '0.5'
+    depends_on:
+      - prometheus
+    networks:
+      - app-network
 
   postgres:
     container_name: booking-cinema-tickets-db
@@ -57,13 +177,15 @@ services:
       resources:
         limits:
           memory: 1G
+          cpus: '2'
         reservations:
           memory: 512M
+          cpus: '1'
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
       - app-network
-    command: 
+    command:
       - "postgres"
       - "-c"
       - "max_connections=100"
@@ -93,6 +215,10 @@ services:
 volumes:
   postgres-data:
     name: booking-postgres-data
+  prometheus-data:
+    name: booking-prometheus-data
+  grafana-data:
+    name: booking-grafana-data
 
 networks:
   app-network:
