@@ -33,6 +33,9 @@
         <!-- Документация OpenAPI (Swagger) -->
         <springdoc.version>2.8.4</springdoc.version>
 
+        <!-- Monitoring -->
+        <javamelody.version>2.2.0</javamelody.version>
+
         <!-- Security -->
         <spring-security.version>6.4.5</spring-security.version>
         <jbcrypt.version>0.4</jbcrypt.version>
@@ -75,10 +78,21 @@
         </dependency>
 
 
+        <!-- Monitoring -->
+        <dependency>
+            <groupId>net.bull.javamelody</groupId>
+            <artifactId>javamelody-spring-boot-starter</artifactId>
+            <version>${javamelody.version}</version>
+        </dependency>
+
         <!-- Actuator -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
 
 
