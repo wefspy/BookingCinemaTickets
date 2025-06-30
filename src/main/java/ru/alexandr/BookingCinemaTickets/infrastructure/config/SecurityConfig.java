@@ -17,6 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import ru.alexandr.BookingCinemaTickets.infrastructure.config.property.JavaMelodyProperties;
 import ru.alexandr.BookingCinemaTickets.infrastructure.security.RoleEnum;
 import ru.alexandr.BookingCinemaTickets.infrastructure.security.filter.JwtAuthenticationFilter;
+import ru.alexandr.BookingCinemaTickets.infrastructure.security.jwt.parser.AccessTokenParser;
 
 @Configuration
 @EnableMethodSecurity
@@ -118,5 +119,11 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter(AccessTokenParser accessTokenParser,
+                                                           UserDetailsService userDetailsService) {
+        return new JwtAuthenticationFilter(accessTokenParser, userDetailsService);
     }
 }

@@ -15,7 +15,6 @@ import ru.alexandr.BookingCinemaTickets.infrastructure.security.jwt.parser.Acces
 
 import java.io.IOException;
 
-@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final String headerName = "Authorization";
     private final String headerStartValue = "Bearer ";
