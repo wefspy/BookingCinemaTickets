@@ -27,8 +27,8 @@ public class ControllerLoggingAspect {
         Logger logger = LoggerFactory.getLogger(joinPoint.getTarget().getClass());
         HttpServletRequest request = HttpRequestUtils.getCurrentHttpRequest().orElseThrow();
 
-        mdcManager.trySetupMainMdc();
-        mdcManager.trySetupHttpMdc(request);
+        mdcManager.trySetupMain();
+        mdcManager.trySetupHttp(request);
 
         logger.info("HTTP Request - Method: [{}] Path: [{}]",
                 request.getMethod(), request.getRequestURI());
@@ -47,7 +47,7 @@ public class ControllerLoggingAspect {
             logger.info("HTTP Response - Method: [{}] Path: [{}] - Completed in {} ms",
                     request.getMethod(), request.getRequestURI(), stopWatch.getTotalTimeMillis());
 
-            mdcManager.clearMdc();
+            mdcManager.clearAll();
 
             return result;
         } catch (Throwable e) {

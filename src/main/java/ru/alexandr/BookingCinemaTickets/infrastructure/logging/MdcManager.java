@@ -11,17 +11,17 @@ import ru.alexandr.BookingCinemaTickets.infrastructure.util.SecurityUtils;
 @Component
 public class MdcManager {
 
-    public void trySetupMainMdc() {
+    public void trySetupMain() {
         tryPutTraceId();
         tryPutUserId();
     }
 
-    public void trySetupHttpMdc(HttpServletRequest request) {
+    public void trySetupHttp(HttpServletRequest request) {
         tryPutSessionId(request);
         tryPutClientIp(request);
     }
 
-    public void clearMdc() {
+    public void clearAll() {
         MDC.clear();
     }
 

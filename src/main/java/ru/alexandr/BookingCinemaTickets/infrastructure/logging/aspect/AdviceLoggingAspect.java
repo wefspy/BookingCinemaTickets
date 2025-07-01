@@ -26,8 +26,8 @@ public class AdviceLoggingAspect {
         Logger logger = LoggerFactory.getLogger(joinPoint.getTarget().getClass());
         HttpServletRequest request = HttpRequestUtils.getCurrentHttpRequest().orElseThrow();
 
-        mdcManager.trySetupMainMdc();
-        mdcManager.trySetupHttpMdc(request);
+        mdcManager.trySetupMain();
+        mdcManager.trySetupHttp(request);
 
         logger.info("Exception Handler - Method: [{}] Path: [{}] Handler: [{}]",
                 request.getMethod(), request.getRequestURI(), joinPoint.getSignature().getName());
@@ -49,7 +49,7 @@ public class AdviceLoggingAspect {
                     e.getClass().getName(), e.getMessage());
             throw e;
         } finally {
-            mdcManager.clearMdc();
+            mdcManager.clearAll();
         }
     }
 } 
