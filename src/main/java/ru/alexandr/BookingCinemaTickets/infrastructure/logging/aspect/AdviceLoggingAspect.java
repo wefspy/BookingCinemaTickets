@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import ru.alexandr.BookingCinemaTickets.infrastructure.logging.TraceConstants;
+import ru.alexandr.BookingCinemaTickets.infrastructure.logging.MdcKey;
 import ru.alexandr.BookingCinemaTickets.infrastructure.logging.TraceIdGenerator;
 
 import java.util.Optional;
@@ -26,9 +26,9 @@ public class AdviceLoggingAspect {
         Logger logger = LoggerFactory.getLogger(joinPoint.getTarget().getClass());
         HttpServletRequest request = getCurrentHttpRequest().orElseThrow();
 
-        String existingTraceId = MDC.get(TraceConstants.TRACE_ID_MDC_KEY);
+        String existingTraceId = MDC.get(MdcKey.TRACE_ID);
         if (existingTraceId == null) {
-            MDC.put(TraceConstants.TRACE_ID_MDC_KEY, TraceIdGenerator.generateTraceId());
+            MDC.put(MdcKey.TRACE_ID, TraceIdGenerator.generateTraceId());
         }
 
         logger.info("Exception Handler - Method: [{}] Path: [{}] Handler: [{}]",
@@ -51,7 +51,7 @@ public class AdviceLoggingAspect {
                     stopWatch.getTotalTimeMillis(), e.getClass().getName(), e.getMessage());
             throw e;
         } finally {
-            MDC.remove(TraceConstants.TRACE_ID_MDC_KEY);
+            MDC.remove(MdcKey.TRACE_ID);
         }
     }
 

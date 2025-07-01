@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import ru.alexandr.BookingCinemaTickets.infrastructure.logging.TraceConstants;
+import ru.alexandr.BookingCinemaTickets.infrastructure.logging.MdcKey;
 import ru.alexandr.BookingCinemaTickets.infrastructure.logging.TraceIdGenerator;
 
 import java.util.Optional;
@@ -27,7 +27,7 @@ public class ControllerLoggingAspect {
         HttpServletRequest request = getCurrentHttpRequest().orElseThrow();
 
         String traceId = TraceIdGenerator.generateTraceId();
-        MDC.put(TraceConstants.TRACE_ID_MDC_KEY, traceId);
+        MDC.put(MdcKey.TRACE_ID, traceId);
 
         logger.info("HTTP Request - Method: [{}] Path: [{}] From: [{}]",
                 request.getMethod(), request.getRequestURI(), request.getRemoteAddr());
@@ -46,7 +46,7 @@ public class ControllerLoggingAspect {
             logger.info("HTTP Response - Method: [{}] Path: [{}] - Completed in {} ms",
                     request.getMethod(), request.getRequestURI(), stopWatch.getTotalTimeMillis());
 
-            MDC.remove(TraceConstants.TRACE_ID_MDC_KEY);
+            MDC.remove(MdcKey.TRACE_ID);
 
             return result;
         } catch (Throwable e) {
