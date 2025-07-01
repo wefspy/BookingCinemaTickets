@@ -6,6 +6,6 @@ public final class TraceIdGenerator {
     private TraceIdGenerator() {}
 
     public static String generateTraceId() {
-        return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+        return UUID.randomUUID().toString();
     }
 } 
