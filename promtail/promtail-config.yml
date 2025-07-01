@@ -33,6 +33,9 @@ scrape_configs:
             thread: thread
             logger: logger
             traceId: traceId
+            userId: userId
+            sessionId: sessionId
+            clientIp: clientIp
             env: env
             message: message
             version: version
@@ -46,9 +49,3 @@ scrape_configs:
       - timestamp:
           source: timestamp
           format: 2006-01-02 15:04:05.000
-      - metrics:
-          request_duration_seconds:
-            type: Histogram
-            source: duration
-            config:
-              buckets: [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 5] 

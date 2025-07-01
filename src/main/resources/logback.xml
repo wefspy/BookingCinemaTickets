@@ -16,10 +16,12 @@
     <property name="LOG_LOGGER" value="%-40.40logger{39}"/>
     <property name="LOG_ENV" value="[env=${ACTIVE_PROFILE}]"/>
     <property name="LOG_TRACE" value="[%X{traceId:-}]"/>
+    <property name="LOG_USER_ID" value="[userId=%X{userId:-}]" />
+    <property name="LOG_SESSION_ID" value="[sessionId=%X{sessionId:-}]" />
     <property name="LOG_MESSAGE" value="%m%n%wEx"/>
 
     <property name="CONSOLE_LOG_PATTERN"
-              value="%clr(${LOG_TIMESTAMP}){faint} %clr(${LOG_LEVEL}) %clr(${LOG_PID}){magenta} %clr(---){faint} %clr(${LOG_THREAD}){faint} %clr(${LOG_LOGGER}){cyan} %clr(:){faint} %clr(${LOG_ENV}){yellow} %clr(${LOG_TRACE}){blue} ${LOG_MESSAGE}"/>
+              value="%clr(${LOG_TIMESTAMP}){faint} %clr(${LOG_ENV}){yellow} %clr(${LOG_TRACE}){blue} %clr(${LOG_USER_ID}){green} %clr(${LOG_SESSION_ID}){magenta} %clr(${LOG_LEVEL}) %clr(${LOG_THREAD}){faint} %clr(${LOG_LOGGER}){cyan} %clr(:){faint} ${LOG_MESSAGE}"/>
 
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -32,7 +34,11 @@
         <file>${LOG_FILE}</file>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <timestampPattern>yyyy-MM-dd HH:mm:ss.SSS</timestampPattern>
-            <customFields>{"app":"booking-cinema-tickets","version":"${APP_VERSION}","hostname":"${HOSTNAME:-unknown}","env":"${ACTIVE_PROFILE:-default}"}</customFields>
+            <customFields>{"app":"booking-cinema-tickets","hostname":"${HOSTNAME:-unknown}"}</customFields>
+            <includeMdcKeyName>traceId</includeMdcKeyName>
+            <includeMdcKeyName>userId</includeMdcKeyName>
+            <includeMdcKeyName>clientIp</includeMdcKeyName>
+            <includeMdcKeyName>sessionId</includeMdcKeyName>
             <fieldNames>
                 <timestamp>timestamp</timestamp>
                 <thread>thread</thread>
@@ -42,7 +48,7 @@
                 <version>[ignore]</version>
                 <message>message</message>
             </fieldNames>
-            <includeMdcKeyName>traceId</includeMdcKeyName>
+
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${FILES_ARCHIVED_PATH}</fileNamePattern>
