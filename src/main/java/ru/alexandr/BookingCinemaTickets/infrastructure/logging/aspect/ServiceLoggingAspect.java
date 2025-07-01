@@ -21,14 +21,13 @@ public class ServiceLoggingAspect {
         Logger logger = LoggerFactory.getLogger(methodSignature.getDeclaringType());
         
         String methodName = methodSignature.getName();
+        String className = joinPoint.getTarget().getClass().getName();
 
         if (logger.isDebugEnabled()) {
             String arguments = Arrays.toString(joinPoint.getArgs());
-            logger.info("Service Method - {}.{}({}) called",
-                    methodSignature.getDeclaringType().getSimpleName(), methodName, arguments);
+            logger.info("Service Method - {}.{}({}) called", className, methodName, arguments);
         } else {
-            logger.info("Service Method - {}.{} called",
-                    methodSignature.getDeclaringType().getSimpleName(), methodName);
+            logger.info("Service Method - {}.{} called", className, methodName);
         }
         
         StopWatch stopWatch = new StopWatch();
@@ -40,20 +39,17 @@ public class ServiceLoggingAspect {
             
             if (logger.isDebugEnabled()) {
                 logger.debug("Service Return - {}.{} completed in {} ms with result: {}",
-                        methodSignature.getDeclaringType().getSimpleName(), methodName,
-                        stopWatch.getTotalTimeMillis(), result);
+                        className, methodName, stopWatch.getTotalTimeMillis(), result);
             } else {
                 logger.info("Service Return - {}.{} completed in {} ms",
-                        methodSignature.getDeclaringType().getSimpleName(), methodName,
-                        stopWatch.getTotalTimeMillis());
+                        className, methodName, stopWatch.getTotalTimeMillis());
             }
             
             return result;
         } catch (Throwable e) {
             stopWatch.stop();
             logger.error("Service Error - {}.{} failed after {} ms with exception: {}, message: {}",
-                    methodSignature.getDeclaringType().getSimpleName(), methodName,
-                    stopWatch.getTotalTimeMillis(), e.getClass().getName(), e.getMessage());
+                    className, methodName, stopWatch.getTotalTimeMillis(), e.getClass().getName(), e.getMessage());
             throw e;
         }
     }

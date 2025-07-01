@@ -53,8 +53,8 @@ public class ControllerLoggingAspect {
         } catch (Throwable e) {
             stopWatch.stop();
             logger.error("HTTP Error - Method: [{}] Path: [{}] - Failed after {} ms with exception: {}, message: {}",
-                    request.getMethod(), request.getRequestURI(),
-                    stopWatch.getTotalTimeMillis(), e.getClass().getName(), e.getMessage());
+                    request.getMethod(), request.getRequestURI(), stopWatch.getTotalTimeMillis(),
+                    e.getClass().getName(), e.getMessage());
             throw e;
         }
     }

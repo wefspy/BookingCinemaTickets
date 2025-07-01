@@ -45,8 +45,8 @@ public class AdviceLoggingAspect {
         } catch (Throwable e) {
             stopWatch.stop();
             logger.error("Exception Handler Failed - Method: [{}] Path: [{}] - Failed after {} ms with exception: {}, message: {}",
-                    request.getMethod(), request.getRequestURI(),
-                    stopWatch.getTotalTimeMillis(), e.getClass().getName(), e.getMessage());
+                    request.getMethod(), request.getRequestURI(), stopWatch.getTotalTimeMillis(),
+                    e.getClass().getName(), e.getMessage());
             throw e;
         } finally {
             mdcManager.clearMdc();

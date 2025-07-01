@@ -21,11 +21,11 @@ public class ComponentLoggingAspect {
         Logger logger = LoggerFactory.getLogger(methodSignature.getDeclaringType());
 
         String methodName = methodSignature.getName();
+        String className = joinPoint.getTarget().getClass().getName();
 
         if (logger.isDebugEnabled()) {
             String arguments = Arrays.toString(joinPoint.getArgs());
-            logger.debug("Component Method - {}.{} called with arguments: {}",
-                    methodSignature.getDeclaringType().getSimpleName(), methodName, arguments);
+            logger.debug("Component Method - {}.{} called with arguments: {}", className, methodName, arguments);
         }
         
         StopWatch stopWatch = new StopWatch();
@@ -37,16 +37,14 @@ public class ComponentLoggingAspect {
             
             if (logger.isDebugEnabled()) {
                 logger.debug("Component Return - {}.{} completed in {} ms",
-                        methodSignature.getDeclaringType().getSimpleName(), methodName,
-                        stopWatch.getTotalTimeMillis());
+                        className, methodName, stopWatch.getTotalTimeMillis());
             }
             
             return result;
         } catch (Throwable e) {
             stopWatch.stop();
             logger.error("Component Error - {}.{} failed after {} ms with exception: {}, message: {}",
-                    methodSignature.getDeclaringType().getSimpleName(), methodName,
-                    stopWatch.getTotalTimeMillis(), e.getClass().getName(), e.getMessage());
+                    className, methodName, stopWatch.getTotalTimeMillis(), e.getClass().getName(), e.getMessage());
             throw e;
         }
     }
