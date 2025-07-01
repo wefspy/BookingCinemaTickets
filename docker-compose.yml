@@ -22,9 +22,10 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB}
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
-      - SPRING_PROFILES_ACTIVE=prod
       - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=*
       - MANAGEMENT_PROMETHEUS_METRICS_EXPORT_ENABLED=true
+    volumes:
+      - app-logs:/app/logs
     deploy:
       resources:
         limits:
@@ -36,6 +37,68 @@ services:
     networks:
       - app-network
 
+  promtail:
+    container_name: booking-cinema-tickets-promtail
+    image: grafana/promtail:2.9.5
+    restart: unless-stopped
+    volumes:
+      - app-logs:/var/log/app:ro
+      - ./promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+    command: -config.file=/etc/promtail/config.yml
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -q --spider http://localhost:9080/ready || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          cpus: '0.2'
+    depends_on:
+      - loki
+    networks:
+      - app-network
+
+  loki:
+    container_name: booking-cinema-tickets-loki
+    image: grafana/loki:2.9.5
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -q --spider http://localhost:3100/ready || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    environment:
+      - LOKI_CONFIG_limits_max_query_parallelism=4
+      - LOKI_CONFIG_limits_max_query_series=500
+      - LOKI_CONFIG_limits_max_entries_limit_per_query=5000
+      - LOKI_CONFIG_limits_max_outstanding_requests_per_tenant=100
+      - LOKI_CONFIG_query_range_split_queries_by_interval=15m
+      - LOKI_CONFIG_query_range_parallelise_shardable_queries=false
+      - LOKI_CONFIG_query_range_results_cache_max_freshness=1m
+      - LOKI_CONFIG_query_range_cache_results=true
+    volumes:
+      - loki-data:/loki
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    networks:
+      - app-network
+
   prometheus:
     container_name: booking-cinema-tickets-prometheus
     image: prom/prometheus:v3.4.0
@@ -43,7 +106,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/prometheus-config.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -219,6 +282,10 @@ volumes:
     name: booking-prometheus-data
   grafana-data:
     name: booking-grafana-data
+  app-logs:
+    name: booking-app-logs
+  loki-data:
+    name: booking-loki-data
 
 networks:
   app-network:

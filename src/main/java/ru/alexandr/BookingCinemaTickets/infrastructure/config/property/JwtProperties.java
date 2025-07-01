@@ -53,13 +53,4 @@ public class JwtProperties {
                 getAccessExpiration(),
                 getRefreshExpiration());
     }
-
-    @Override
-    public String toString() {
-        return "JwtProperties{" +
-                "secret='" + secret + '\'' +
-                ", accessExpiration=" + accessExpiration +
-                ", refreshExpiration=" + refreshExpiration +
-                '}';
-    }
 }

@@ -53,13 +53,4 @@ public class RootProperties {
                 getPassword(),
                 getEmail());
     }
-
-    @Override
-    public String toString() {
-        return "RootProperties{" +
-                "username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", email='" + email + '\'' +
-                '}';
-    }
 }
