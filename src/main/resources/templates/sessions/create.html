@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Создание сеанса</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container py-5">
+    <h2 class="mb-4">Создать новый сеанс</h2>
+    <form th:action="@{/sessions/create}" method="post" class="card p-4 shadow-sm">
+        <div class="mb-3">
+            <label for="movieId" class="form-label">Фильм</label>
+            <select class="form-select" id="movieId" name="movieId" required>
+                <option value="">Выберите фильм</option>
+                <option th:each="movie : ${movies}" th:value="${movie.id}" th:text="${movie.title}"></option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="hallId" class="form-label">Зал</label>
+            <select class="form-select" id="hallId" name="hallId" required>
+                <option value="">Выберите зал</option>
+                <option th:each="hall : ${halls}" th:value="${hall.id}" th:text="${hall.name}"></option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="startTime" class="form-label">Дата и время начала</label>
+            <input type="datetime-local" class="form-control" id="startTime" name="startTime" required>
+        </div>
+        <div class="mb-3">
+            <label for="priceStandard" class="form-label">Цена за место (STANDARD, ₽)</label>
+            <input type="number" class="form-control" id="priceStandard" name="priceStandard" min="0" step="0.01" required>
+        </div>
+        <div class="mb-3">
+            <label for="priceVip" class="form-label">Цена за место (VIP, ₽)</label>
+            <input type="number" class="form-control" id="priceVip" name="priceVip" min="0" step="0.01" required>
+        </div>
+        <div class="mb-3">
+            <label for="pricePremium" class="form-label">Цена за место (PREMIUM, ₽)</label>
+            <input type="number" class="form-control" id="pricePremium" name="pricePremium" min="0" step="0.01" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Создать сеанс</button>
+    </form>
+</div>
+</body>
+</html> 

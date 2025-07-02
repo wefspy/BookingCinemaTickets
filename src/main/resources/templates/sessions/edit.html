@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактировать сеанс</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container py-5">
+    <h2 class="mb-4">Редактировать сеанс</h2>
+    <form th:action="@{'/sessions/edit/' + ${cinemaSession.id}}" method="post" class="card p-4 shadow-sm">
+        <div class="mb-3">
+            <label for="movieId" class="form-label">Фильм</label>
+            <select class="form-select" id="movieId" name="movieId" required>
+                <option th:each="movie : ${movies}" th:value="${movie.id}" th:text="${movie.title}" th:selected="${movie.id == cinemaSession.movie.id}"></option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="hallId" class="form-label">Зал</label>
+            <select class="form-select" id="hallId" name="hallId" required>
+                <option th:each="hall : ${halls}" th:value="${hall.id}" th:text="${hall.name}" th:selected="${hall.id == cinemaSession.hall.id}"></option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="startTime" class="form-label">Дата и время начала</label>
+            <input type="datetime-local" class="form-control" id="startTime" name="startTime"
+                   th:value="${#temporals.format(cinemaSession.startTime, 'yyyy-MM-dd''T''HH:mm')}" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+        <a href="/sessions" class="btn btn-secondary ms-2">Отмена</a>
+    </form>
+</div>
+</body>
+</html> 

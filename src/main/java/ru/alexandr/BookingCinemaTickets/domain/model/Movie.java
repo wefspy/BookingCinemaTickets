@@ -1,14 +1,13 @@
 package ru.alexandr.BookingCinemaTickets.domain.model;
 
 import jakarta.persistence.*;
+import ru.alexandr.BookingCinemaTickets.application.dto.movie.MovieData;
 import ru.alexandr.BookingCinemaTickets.domain.enums.Rating;
 
 import java.net.URL;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "movies")
@@ -39,16 +38,18 @@ public class Movie {
     private URL posterUrl;
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final Set<GenreMovie> genreMovie = new HashSet<>();
+    private final List<GenreMovie> genreMovie = new ArrayList<>();
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final Set<Session> sessions = new HashSet<>();
+    private final List<Session> sessions = new ArrayList<>();
 
     public Movie(String title,
+                 String description,
                  Integer durationInMinutes,
                  LocalDate releaseDate,
                  Rating rating) {
         setTitle(title);
+        setDescription(description);
         setDurationInMinutes(durationInMinutes);
         setReleaseDate(releaseDate);
         setRating(rating);
@@ -110,12 +111,35 @@ public class Movie {
         this.posterUrl = posterUrl;
     }
 
-    public Set<GenreMovie> getGenreMovie() {
+    public List<GenreMovie> getGenreMovie() {
         return genreMovie;
     }
 
-    public Set<Session> getSessions() {
+    public List<Session> getSessions() {
         return sessions;
+    }
+
+    public void update(MovieData data) {
+        setTitle(data.title());
+        setDescription(data.description());
+        setDurationInMinutes(data.durationInMinutes());
+        setReleaseDate(data.releaseDate());
+        setRating(data.rating());
+    }
+
+    public void addGenres(List<Genre> newGenres) {
+        Set<Genre> currentGenres = getGenreMovie().stream()
+                .map(GenreMovie::getGenre)
+                .collect(Collectors.toSet());
+
+        getGenreMovie().removeIf(gm -> !newGenres.contains(gm.getGenre()));
+
+        for (Genre genre : newGenres) {
+            if (currentGenres.contains(genre)) {
+                continue;
+            }
+            getGenreMovie().add(new GenreMovie(this, genre));
+        }
     }
 
     @Override

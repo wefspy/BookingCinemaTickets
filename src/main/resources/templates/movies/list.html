@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <title>Управление фильмами</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+    <style>
+        :root {
+            --primary-color: #1a1a1a;
+            --secondary-color: #4a5568;
+            --accent-color: #3b82f6;
+            --success-color: #10b981;
+            --warning-color: #3b82f6;
+            --danger-color: #ef4444;
+            --light-bg: #f8fafc;
+            --border-radius: 16px;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--primary-color);
+            min-height: 100vh;
+        }
+
+        .movie-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .movie-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--accent-color), #60a5fa);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+                       0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .movie-card:hover::before {
+            opacity: 1;
+        }
+
+        .movie-card-header {
+            padding: 1.5rem;
+            background: linear-gradient(to right, #f8fafc, white);
+            flex: 0 0 300px;
+            border-right: 1px solid #e5e7eb;
+        }
+
+        .movie-title {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin: 0 0 1rem 0;
+            line-height: 1.4;
+        }
+
+        .movie-card-body {
+            padding: 1.5rem;
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-content: flex-start;
+            background: white;
+        }
+
+        .movie-info-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex: 1 1 100%;
+        }
+
+        .movie-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            background: #f8fafc;
+            transition: background-color 0.2s ease;
+            flex: 0 1 auto;
+        }
+
+        .movie-info:hover {
+            background: #f1f5f9;
+        }
+
+        .movie-info i {
+            width: 18px;
+            text-align: center;
+            color: var(--accent-color);
+        }
+
+        .genre-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            flex: 1 1 100%;
+        }
+
+        .genre-badge {
+            display: inline-block;
+            padding: 0.4em 0.8em;
+            font-size: 0.75em;
+            font-weight: 500;
+            line-height: 1;
+            color: #4b5563;
+            background-color: #f1f5f9;
+            border-radius: 20px;
+            transition: all 0.2s ease;
+            border: 1px solid #e5e7eb;
+        }
+
+        .genre-badge:hover {
+            background-color: #e5e7eb;
+            transform: translateY(-1px);
+        }
+
+        .rating-badge {
+            font-weight: 600;
+            padding: 0.4em 0.8em;
+            border-radius: 20px;
+            font-size: 0.75em;
+            letter-spacing: 0.025em;
+            text-transform: uppercase;
+        }
+
+        .rating-G { 
+            background-color: #dcfce7; 
+            color: #166534;
+            border: 1px solid #86efac;
+        }
+        .rating-PG { 
+            background-color: #dbeafe; 
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+        .rating-PG13 { 
+            background-color: #fef3c7; 
+            color: #92400e;
+            border: 1px solid #fcd34d;
+        }
+        .rating-R { 
+            background-color: #fee2e2; 
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+        .rating-NC17 { 
+            background-color: #f3f4f6; 
+            color: #1f2937;
+            border: 1px solid #d1d5db;
+        }
+
+        .movie-card-footer {
+            padding: 1.5rem;
+            border-left: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 0.75rem;
+            background: linear-gradient(to left, #f8fafc, white);
+            flex: 0 0 auto;
+        }
+
+        .btn-action {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: 140px;
+            justify-content: center;
+        }
+
+        .btn-edit {
+            background-color: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e40af;
+        }
+
+        .btn-edit:hover {
+            background-color: #dbeafe;
+            border-color: #93c5fd;
+            color: #1e3a8a;
+            transform: translateY(-1px);
+        }
+
+        .btn-delete {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+
+        .btn-delete:hover {
+            background-color: #fee2e2;
+            border-color: #fca5a5;
+            color: #7f1d1d;
+            transform: translateY(-1px);
+        }
+
+        .btn-add {
+            background-color: var(--accent-color);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.875rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            letter-spacing: 0.025em;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1),
+                       0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        .btn-add:hover {
+            background-color: #2563eb;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                       0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .page-header {
+            color: var(--primary-color);
+            font-size: 1.875rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            margin-bottom: 2rem;
+        }
+
+        .pagination {
+            margin-top: 2.5rem;
+        }
+
+        .pagination .page-link {
+            padding: 0.75rem 1rem;
+            color: var(--secondary-color);
+            border: 1px solid #e5e7eb;
+            font-size: 0.875rem;
+            background-color: white;
+            transition: all 0.2s ease;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            color: white;
+            font-weight: 500;
+        }
+
+        .pagination .page-link:hover {
+            background-color: #f8fafc;
+            color: var(--primary-color);
+            transform: translateY(-1px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: var(--border-radius);
+            color: var(--secondary-color);
+            box-shadow: var(--card-shadow);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            color: #e5e7eb;
+            opacity: 0.8;
+        }
+
+        .empty-state h3 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state p {
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            color: var(--secondary-color);
+        }
+
+        @media (max-width: 992px) {
+            .movie-card {
+                flex-direction: column;
+            }
+            
+            .movie-card-header {
+                flex: none;
+                border-right: none;
+                border-bottom: 1px solid #e5e7eb;
+            }
+            
+            .movie-card-footer {
+                flex-direction: row;
+                justify-content: flex-end;
+                border-left: none;
+                border-top: 1px solid #e5e7eb;
+            }
+            
+            .btn-action {
+                width: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .page-header {
+                font-size: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .movie-info-container {
+                flex-direction: column;
+            }
+            
+            .movie-info {
+                width: 100%;
+            }
+        }
+
+        /* Стили для модального окна */
+        .modal-content {
+            border-radius: var(--border-radius);
+            border: none;
+            box-shadow: var(--card-shadow);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(to bottom, #f8fafc, white);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            padding: 1.5rem;
+        }
+
+        .modal-title {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #e5e7eb;
+            background: linear-gradient(to top, #f8fafc, white);
+            padding: 1.5rem;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+        }
+
+        .form-label {
+            color: var(--primary-color);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .select2-container--default .select2-selection--multiple {
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            padding: 0.25rem;
+        }
+
+        .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: #f1f5f9;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+        }
+
+        .btn-modal {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.875rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .btn-modal-secondary {
+            background-color: #f1f5f9;
+            border: 1px solid #e5e7eb;
+            color: var(--secondary-color);
+        }
+
+        .btn-modal-secondary:hover {
+            background-color: #e5e7eb;
+            color: var(--primary-color);
+        }
+
+        .btn-modal-primary {
+            background-color: var(--accent-color);
+            border: none;
+            color: white;
+        }
+
+        .btn-modal-primary:hover {
+            background-color: #2563eb;
+            color: white;
+        }
+
+        /* Анимация для модального окна */
+        .modal.fade .modal-dialog {
+            transform: scale(0.95);
+            transition: transform 0.2s ease-out;
+        }
+
+        .modal.show .modal-dialog {
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body>
+<!-- Header для ADMIN -->
+<nav th:if="${isAdmin}" class="navbar navbar-expand-lg navbar-light py-3" style="border-radius:0 0 18px 18px;box-shadow:0 4px 16px rgba(0,0,0,0.04);background:#fff;margin-bottom:2.5rem;">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">Cinema Admin</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto gap-2">
+                <li class="nav-item">
+                    <a class="nav-link" href="/halls">Залы</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/sessions">Сеансы</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/movies" style="color:#2563eb;font-weight:600;background:#e0edff;border-radius:8px;">Фильмы</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/genres">Жанры</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/users">Пользователи</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Выйти</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<!-- Header для USER -->
+<nav th:if="${isUser}" class="navbar navbar-expand-lg navbar-light py-3">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/movies">Cinema</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="#navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto gap-2">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/movies" style="color:#2563eb;font-weight:600;background:#e0edff;border-radius:8px;">Фильмы</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/sessions">Сеансы</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/users/profile">Профиль</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Выйти</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="page-header">Управление фильмами</h1>
+        <button th:if="${isAdmin}" type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#createMovieModal">
+            <i class="fas fa-plus me-2"></i>Добавить фильм
+        </button>
+    </div>
+
+    <!-- Пустое состояние -->
+    <div th:if="${movies.empty}" class="empty-state">
+        <i class="fas fa-film"></i>
+        <h3>Фильмы не найдены</h3>
+        <p>Добавьте новый фильм, чтобы он появился здесь</p>
+        <button th:if="${isAdmin}" type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#createMovieModal">
+            <i class="fas fa-plus me-2"></i>Добавить фильм
+        </button>
+    </div>
+
+    <!-- Список карточек -->
+    <div th:if="${!movies.empty}">
+        <div th:each="movie : ${movies}" class="movie-card">
+            <div class="movie-card-header">
+                <h2 class="movie-title" th:text="${movie.title()}"></h2>
+                <div class="movie-info">
+                    <i class="fas fa-star"></i>
+                    <span class="rating-badge" th:classappend="${'rating-' + movie.rating()}"
+                          th:text="${movie.rating()}">
+                    </span>
+                </div>
+            </div>
+            <div class="movie-card-body">
+                <div class="movie-info-container">
+                    <div class="movie-info">
+                        <i class="far fa-clock"></i>
+                        <span th:text="${movie.durationInMinutes() + ' мин'}"></span>
+                    </div>
+                    <div class="movie-info">
+                        <i class="far fa-calendar"></i>
+                        <span th:text="${#temporals.format(movie.releaseDate(), 'dd.MM.yyyy')}"></span>
+                    </div>
+                </div>
+                <div class="genre-badges">
+                    <span th:each="genre : ${movie.genres()}" 
+                          class="genre-badge" 
+                          th:text="${genre.name()}">
+                    </span>
+                </div>
+            </div>
+            <div class="movie-card-footer">
+                <!-- <a th:if="${isUser}" href="@{'/movies/enroll/' + ${movie.id}}" class="btn btn-primary">Записаться</a> -->
+                <button th:if="${isAdmin}" type="button" class="btn btn-action btn-edit" data-bs-toggle="modal" data-bs-target="#editMovieModal"
+                        th:attr="data-id=${movie.id},data-title=${movie.title()},data-description=${movie.description()},data-duration=${movie.durationInMinutes()},data-release-date=${#temporals.format(movie.releaseDate(), 'yyyy-MM-dd')},data-rating=${movie.rating()},data-genres=${movie.genres()}" >
+                    <i class="fas fa-edit"></i> Редактировать
+                </button>
+                <form th:if="${isAdmin}" th:action="@{'/movies/delete/' + ${movie.id}}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-action btn-delete" onclick="return confirm('Удалить фильм?');">
+                        <i class="fas fa-trash"></i> Удалить
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Пагинация -->
+    <nav th:if="${totalPages > 1}" class="d-flex justify-content-center">
+        <ul class="pagination">
+            <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+                <a class="page-link"
+                   th:href="@{/movies(page=${currentPage - 1})}"
+                   tabindex="-1">
+                    <i class="fas fa-chevron-left me-1"></i>
+                    Предыдущая
+                </a>
+            </li>
+            <li class="page-item"
+                th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
+                th:classappend="${pageNum == currentPage ? 'active' : ''}">
+                <a class="page-link"
+                   th:href="@{/movies(page=${pageNum})}"
+                   th:text="${pageNum + 1}"></a>
+            </li>
+            <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
+                <a class="page-link"
+                   th:href="@{/movies(page=${currentPage + 1})}">
+                    Следующая
+                    <i class="fas fa-chevron-right ms-1"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Модальное окно создания фильма -->
+    <div class="modal fade" id="createMovieModal" tabindex="-1" aria-labelledby="createMovieModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createMovieModalLabel">Добавление фильма</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="createMovieForm" th:action="@{/movies/create}" method="post">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Название</label>
+                            <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Описание</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="durationInMinutes" class="form-label">Длительность (в минутах)</label>
+                            <input type="number" class="form-control" id="durationInMinutes" name="durationInMinutes" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="releaseDate" class="form-label">Дата выхода</label>
+                            <input type="date" class="form-control" id="releaseDate" name="releaseDate" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="rating" class="form-label">Рейтинг</label>
+                            <select class="form-select" id="rating" name="rating" required>
+                                <option value="">Выберите рейтинг</option>
+                                <option th:each="rating : ${ratings}"
+                                        th:value="${rating}"
+                                        th:text="${rating}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="genres" class="form-label">Жанры</label>
+                            <select class="form-select" id="genres" name="genreIds" multiple required>
+                                <option th:each="genre : ${genres}"
+                                        th:value="${genre.id()}"
+                                        th:text="${genre.name()}">
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-modal btn-modal-secondary" data-bs-dismiss="modal">Отмена</button>
+                        <button type="submit" class="btn btn-modal btn-modal-primary">Сохранить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно редактирования фильма -->
+    <div class="modal fade" id="editMovieModal" tabindex="-1" aria-labelledby="editMovieModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editMovieModalLabel">Редактирование фильма</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="editMovieForm" method="post">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="editTitle" class="form-label">Название</label>
+                            <input type="text" class="form-control" id="editTitle" name="title" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editDescription" class="form-label">Описание</label>
+                            <textarea class="form-control" id="editDescription" name="description" rows="3" required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editDurationInMinutes" class="form-label">Длительность (в минутах)</label>
+                            <input type="number" class="form-control" id="editDurationInMinutes" name="durationInMinutes" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editReleaseDate" class="form-label">Дата выхода</label>
+                            <input type="date" class="form-control" id="editReleaseDate" name="releaseDate" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editRating" class="form-label">Рейтинг</label>
+                            <select class="form-select" id="editRating" name="rating" required>
+                                <option value="">Выберите рейтинг</option>
+                                <option th:each="rating : ${ratings}"
+                                        th:value="${rating}"
+                                        th:text="${rating}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editGenres" class="form-label">Жанры</label>
+                            <select class="form-select" id="editGenres" name="genreIds" multiple required>
+                                <option th:each="genre : ${genres}"
+                                        th:value="${genre.id()}"
+                                        th:text="${genre.name()}">
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-modal btn-modal-secondary" data-bs-dismiss="modal">Отмена</button>
+                        <button type="submit" class="btn btn-modal btn-modal-primary">Сохранить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Инициализация Select2 для выбора жанров в форме создания
+        $('#genres').select2({
+            placeholder: 'Выберите жанры',
+            width: '100%',
+            dropdownParent: $('#createMovieModal')
+        });
+
+        // Инициализация Select2 для выбора жанров в форме редактирования
+        $('#editGenres').select2({
+            placeholder: 'Выберите жанры',
+            width: '100%',
+            dropdownParent: $('#editMovieModal')
+        });
+
+        // Обработка отправки формы создания
+        $('#createMovieForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            const form = $(this);
+            const submitButton = form.find('button[type="submit"]');
+            submitButton.prop('disabled', true);
+            
+            $.ajax({
+                url: form.attr('action'),
+                method: 'POST',
+                data: form.serialize(),
+                success: function(response) {
+                    $('#createMovieModal').modal('hide');
+                    window.location.reload();
+                },
+                error: function(xhr) {
+                    alert('Произошла ошибка при создании фильма. Пожалуйста, проверьте введенные данные.');
+                },
+                complete: function() {
+                    submitButton.prop('disabled', false);
+                }
+            });
+        });
+
+        // Обработка открытия модального окна редактирования
+        $('.btn-edit').on('click', function(e) {
+            e.preventDefault();
+            
+            // Получаем данные из data-атрибутов
+            const movieId = $(this).attr('data-movie-id');
+            const title = $(this).attr('data-movie-title');
+            const description = $(this).attr('data-movie-description');
+            const duration = $(this).attr('data-movie-duration');
+            const releaseDate = $(this).attr('data-movie-release-date');
+            const rating = $(this).attr('data-movie-rating');
+            const genresStr = $(this).attr('data-movie-genres');
+            const genres = genresStr ? genresStr.split(',') : [];
+            
+            // Устанавливаем action формы
+            $('#editMovieForm').attr('action', '/movies/edit/' + movieId);
+            
+            // Заполняем поля формы
+            $('#editTitle').val(title);
+            $('#editDescription').val(description);
+            $('#editDurationInMinutes').val(duration);
+            $('#editReleaseDate').val(releaseDate);
+            $('#editRating').val(rating);
+            
+            // Устанавливаем выбранные жанры
+            $('#editGenres').val(genres).trigger('change');
+            
+            // Открываем модальное окно
+            $('#editMovieModal').modal('show');
+        });
+
+        // Обработка отправки формы редактирования
+        $('#editMovieForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            const form = $(this);
+            const submitButton = form.find('button[type="submit"]');
+            submitButton.prop('disabled', true);
+            
+            $.ajax({
+                url: form.attr('action'),
+                method: 'POST',
+                data: form.serialize(),
+                success: function(response) {
+                    $('#editMovieModal').modal('hide');
+                    window.location.reload();
+                },
+                error: function(xhr) {
+                    alert('Произошла ошибка при редактировании фильма. Пожалуйста, проверьте введенные данные.');
+                },
+                complete: function() {
+                    submitButton.prop('disabled', false);
+                }
+            });
+        });
+
+        // Очистка форм при закрытии модальных окон
+        $('#createMovieModal').on('hidden.bs.modal', function() {
+            $('#createMovieForm')[0].reset();
+            $('#genres').val(null).trigger('change');
+        });
+
+        $('#editMovieModal').on('hidden.bs.modal', function() {
+            $('#editMovieForm')[0].reset();
+            $('#editGenres').val(null).trigger('change');
+        });
+    });
+</script>
+</body>
+</html> 

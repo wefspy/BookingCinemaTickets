@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.alexandr.BookingCinemaTickets.application.dto.UserProfileInfoDto;
 import ru.alexandr.BookingCinemaTickets.application.service.UserService;
+import ru.alexandr.BookingCinemaTickets.infrastructure.util.SecurityUtils;
 
 @Controller
 @RequestMapping("/users")
@@ -32,5 +33,17 @@ public class UserController {
         model.addAttribute("users", userPage.getContent());
 
         return "users";
+    }
+
+    @GetMapping("/profile")
+    public String userProfile(Model model) {
+        var userOpt = SecurityUtils.getCurrentUser();
+        if (userOpt.isEmpty()) {
+            return "redirect:/login";
+        }
+        var userId = userOpt.get().getId();
+        var profile = userService.getUserProfileInfo(userId);
+        model.addAttribute("profile", profile);
+        return "profile";
     }
 }

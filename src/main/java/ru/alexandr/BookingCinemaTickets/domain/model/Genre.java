@@ -1,10 +1,9 @@
 package ru.alexandr.BookingCinemaTickets.domain.model;
 
 import jakarta.persistence.*;
+import ru.alexandr.BookingCinemaTickets.application.dto.genre.GenreData;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "genres")
@@ -22,10 +21,11 @@ public class Genre {
     private String description;
 
     @OneToMany(mappedBy = "genre", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final Set<GenreMovie> genreMovie = new HashSet<>();
+    private final List<GenreMovie> genreMovie = new ArrayList<>();
 
-    public Genre(String name) {
+    public Genre(String name, String description) {
         setName(name);
+        setDescription(description);
     }
 
     protected Genre() {
@@ -52,8 +52,13 @@ public class Genre {
         this.description = description;
     }
 
-    public Set<GenreMovie> getGenreMovie() {
+    public List<GenreMovie> getGenreMovie() {
         return genreMovie;
+    }
+
+    public void update(GenreData data) {
+        setName(data.name());
+        setDescription(data.description());
     }
 
     @Override

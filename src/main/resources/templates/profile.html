@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Личный кабинет</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1a1a1a;
+            --secondary-color: #4a5568;
+            --accent-color: #3b82f6;
+            --light-bg: #f8fafc;
+            --border-radius: 16px;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        body {
+            background-color: var(--light-bg);
+            color: var(--primary-color);
+            min-height: 100vh;
+        }
+        .profile-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 2.5rem 2rem;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        .profile-title {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .profile-info {
+            margin-bottom: 1.2rem;
+        }
+        .profile-label {
+            color: var(--secondary-color);
+            font-size: 0.98rem;
+            margin-bottom: 0.2rem;
+        }
+        .profile-value {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+        .profile-roles {
+            color: var(--secondary-color);
+            font-size: 1rem;
+        }
+        .profile-icon {
+            color: var(--accent-color);
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light py-3">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/movies">Cinema</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto gap-2">
+                <li class="nav-item">
+                    <a class="nav-link" href="/movies">Фильмы</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/sessions">Сеансы</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/users/profile" style="color:#2563eb;font-weight:600;background:#e0edff;border-radius:8px;">Профиль</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Выйти</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container py-5">
+    <div class="profile-card">
+        <div class="profile-title">Личный кабинет</div>
+        <div class="profile-info">
+            <div class="profile-label"><i class="fa fa-user profile-icon"></i>Имя пользователя</div>
+            <div class="profile-value" th:text="${profile.userName}"></div>
+        </div>
+        <div class="profile-info">
+            <div class="profile-label"><i class="fa fa-envelope profile-icon"></i>Email</div>
+            <div class="profile-value" th:text="${profile.email}"></div>
+        </div>
+        <div class="profile-info">
+            <div class="profile-label"><i class="fa fa-phone profile-icon"></i>Телефон</div>
+            <div class="profile-value" th:text="${profile.phoneNumber}"></div>
+        </div>
+        <div class="profile-info">
+            <div class="profile-label"><i class="fa fa-users profile-icon"></i>Роли</div>
+            <div class="profile-roles">
+                <span th:each="role,iter : ${profile.roles}">
+                    <span th:text="${role.name}"></span><span th:if="${!iter.last}">, </span>
+                </span>
+            </div>
+        </div>
+        <div class="profile-info">
+            <div class="profile-label"><i class="fa fa-calendar profile-icon"></i>Дата регистрации</div>
+            <div class="profile-value" th:text="${#temporals.format(profile.createdAt, 'dd.MM.yyyy')}"></div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

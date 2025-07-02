@@ -18,17 +18,22 @@ import ru.alexandr.BookingCinemaTickets.infrastructure.config.property.JavaMelod
 import ru.alexandr.BookingCinemaTickets.infrastructure.security.RoleEnum;
 import ru.alexandr.BookingCinemaTickets.infrastructure.security.filter.JwtAuthenticationFilter;
 import ru.alexandr.BookingCinemaTickets.infrastructure.security.jwt.parser.AccessTokenParser;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final UserDetailsService userDetailsService;
+    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
+    @Autowired
     public SecurityConfig(AuthenticationConfiguration authenticationConfiguration,
-                          UserDetailsService userDetailsService) {
+                          UserDetailsService userDetailsService,
+                          CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler) {
         this.authenticationConfiguration = authenticationConfiguration;
         this.userDetailsService = userDetailsService;
+        this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler;
     }
 
     /**
@@ -99,7 +104,7 @@ public class SecurityConfig {
                 ).formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/users", true)
+                        .successHandler(customAuthenticationSuccessHandler)
                         .failureUrl("/login")
                         .permitAll()
                 ).logout(logout -> logout
