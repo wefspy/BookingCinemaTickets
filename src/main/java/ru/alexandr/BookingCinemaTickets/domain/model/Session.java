@@ -1,11 +1,10 @@
 package ru.alexandr.BookingCinemaTickets.domain.model;
 
 import jakarta.persistence.*;
+import ru.alexandr.BookingCinemaTickets.application.dto.session.SessionData;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "sessions")
@@ -28,7 +27,7 @@ public class Session {
     private Hall hall;
 
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final Set<SessionSeat> sessionSeat = new HashSet<>();
+    private final List<SessionSeat> sessionSeat = new ArrayList<>();
 
     public Session(Movie movie,
                    Hall hall,
@@ -70,8 +69,17 @@ public class Session {
         this.startTime = startTime;
     }
 
-    public Set<SessionSeat> getSessionSeat() {
+    public List<SessionSeat> getSessionSeat() {
         return sessionSeat;
+    }
+
+    public void update(SessionData data) {
+        setStartTime(data.startTime());
+    }
+
+    public void updateDependencies(Hall hall, Movie movie) {
+        setHall(hall);
+        setMovie(movie);
     }
 
     @Override

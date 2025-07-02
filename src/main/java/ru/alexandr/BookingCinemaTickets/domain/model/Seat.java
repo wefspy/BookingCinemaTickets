@@ -1,11 +1,10 @@
 package ru.alexandr.BookingCinemaTickets.domain.model;
 
 import jakarta.persistence.*;
+import ru.alexandr.BookingCinemaTickets.application.dto.seat.SeatData;
 import ru.alexandr.BookingCinemaTickets.domain.enums.SeatType;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "seats")
@@ -31,7 +30,7 @@ public class Seat {
     private Hall hall;
 
     @OneToMany(mappedBy = "seat", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final Set<SessionSeat> sessionSeats = new HashSet<>();
+    private final List<SessionSeat> sessionSeats = new ArrayList<>();
 
     public Seat(Hall hall,
                 Integer rowNumber,
@@ -83,8 +82,18 @@ public class Seat {
         this.type = type;
     }
 
-    public Set<SessionSeat> getSessionSeats() {
+    public List<SessionSeat> getSessionSeats() {
         return sessionSeats;
+    }
+
+    public void update(SeatData data) {
+        setRowNumber(data.rowNumber());
+        setSeatNumber(data.seatNumber());
+        setType(data.type());
+    }
+
+    public boolean hasHall(Long hallId) {
+        return hall.getId().equals(hallId);
     }
 
     @Override

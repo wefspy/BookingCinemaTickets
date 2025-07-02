@@ -3,9 +3,7 @@ package ru.alexandr.BookingCinemaTickets.domain.model;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "tickets")
@@ -34,7 +32,7 @@ public class Ticket {
     private SessionSeat sessionSeat;
 
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final Set<Payment> payments = new HashSet<>();
+    private final List<Payment> payments = new ArrayList<>();
 
     public Ticket(UserInfo userInfo,
                   SessionSeat sessionSeat,
@@ -96,7 +94,7 @@ public class Ticket {
         this.used = used;
     }
 
-    public Set<Payment> getPayments() {
+    public List<Payment> getPayments() {
         return payments;
     }
 

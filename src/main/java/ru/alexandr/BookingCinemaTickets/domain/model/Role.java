@@ -2,9 +2,7 @@ package ru.alexandr.BookingCinemaTickets.domain.model;
 
 import jakarta.persistence.*;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "roles")
@@ -19,7 +17,7 @@ public class Role {
     private String name;
 
     @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final Set<RoleUser> roleUser = new HashSet<>();
+    private final List<RoleUser> roleUser = new ArrayList<>();
 
     public Role(String name) {
         setName(name);
@@ -45,7 +43,7 @@ public class Role {
         this.name = name;
     }
 
-    public Set<RoleUser> getRoleUser() {
+    public List<RoleUser> getRoleUser() {
         return roleUser;
     }
 

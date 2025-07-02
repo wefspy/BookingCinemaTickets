@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Список залов</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
+        .main-title {
+            font-weight: 700;
+            color: #1e293b;
+            letter-spacing: -0.5px;
+            margin-bottom: 32px;
+            font-size: 2rem;
+        }
+        .card {
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            border-radius: 24px;
+            border: none;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        .table {
+            border-radius: 16px;
+            overflow: hidden;
+            background: white;
+            width: 100%;
+            margin-bottom: 0;
+        }
+        .table th {
+            background: #f1f5f9;
+            color: #1e293b;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .table td {
+            vertical-align: middle;
+        }
+        .btn-add-hall {
+            border-radius: 12px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            padding: 0.6rem 1.2rem;
+            font-size: 1rem;
+            background: #e0edff;
+            color: #2563eb;
+            border: 1px solid #b6d4fe;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-add-hall:hover, .btn-add-hall:focus {
+            background: #2563eb;
+            color: #fff;
+            border: 1px solid #2563eb;
+        }
+        .pagination .page-link {
+            border-radius: 8px !important;
+            color: #4f46e5;
+            font-weight: 500;
+        }
+        .pagination .active .page-link {
+            background: #4f46e5;
+            color: white;
+            border: none;
+        }
+        .pagination .page-item.disabled .page-link {
+            color: #b0b0b0;
+        }
+        :root {
+            --primary-color: #1a1a1a;
+            --secondary-color: #4a5568;
+            --accent-color: #3b82f6;
+            --danger-color: #ef4444;
+            --light-bg: #f8fafc;
+            --border-radius: 16px;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .hall-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            gap: 1.5rem;
+        }
+        .hall-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--accent-color), #60a5fa);
+            opacity: 0.7;
+            border-radius: var(--border-radius) 0 0 var(--border-radius);
+        }
+        .hall-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+                       0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .hall-info {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+        .hall-title {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            margin-bottom: 0.2rem;
+            word-break: break-word;
+        }
+        .hall-system {
+            color: var(--secondary-color);
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+        .hall-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+        .btn-edit {
+            background-color: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e40af;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s;
+            padding: 0.5rem 1.1rem;
+            font-size: 0.95rem;
+        }
+        .btn-edit:hover {
+            background-color: #dbeafe;
+            border-color: #93c5fd;
+            color: #1e3a8a;
+            transform: translateY(-1px);
+        }
+        .btn-delete {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s;
+            padding: 0.5rem 1.1rem;
+            font-size: 0.95rem;
+        }
+        .btn-delete:hover {
+            background-color: #fee2e2;
+            border-color: #fca5a5;
+            color: #7f1d1d;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light py-3" style="border-radius:0 0 18px 18px;box-shadow:0 4px 16px rgba(0,0,0,0.04);background:#fff;margin-bottom:2.5rem;">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">Cinema Admin</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto gap-2">
+                <li class="nav-item">
+                    <a class="nav-link" href="/halls">Залы</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/sessions">Сеансы</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/movies">Фильмы</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/genres">Жанры</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/users">Пользователи</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Выйти</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9 col-md-11">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="main-title mb-0">Список залов</h2>
+                <a href="/halls/create" class="btn btn-add-hall">+ Добавить зал</a>
+            </div>
+            <div>
+                <div th:if="${hallsPage.content.size() == 0}" class="text-center text-secondary py-4">Залы не найдены</div>
+                <div th:each="hall : ${hallsPage.content}" class="hall-card">
+                    <div class="hall-info">
+                        <div class="hall-title" th:text="${hall.name}"></div>
+                        <div class="hall-system"><i class="fa fa-volume-up me-1"></i> <span th:text="${hall.soundSystem}"></span></div>
+                        <div class="text-muted small mt-1">ID: <span th:text="${hall.id}"></span></div>
+                    </div>
+                    <div class="hall-actions">
+                        <a th:href="@{'/halls/edit/' + ${hall.id}}" class="btn btn-edit">
+                            <i class="fa fa-edit"></i> Редактировать
+                        </a>
+                        <form th:action="@{'/halls/delete/' + ${hall.id}}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-delete" onclick="return confirm('Удалить зал?');">
+                                <i class="fa fa-trash"></i> Удалить
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- Пагинация -->
+            <nav th:if="${hallsPage.totalPages > 1}" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item" th:classappend="${hallsPage.first} ? 'disabled'">
+                        <a class="page-link" th:href="@{'/halls'(page=${hallsPage.number - 1},size=${hallsPage.size})}">Назад</a>
+                    </li>
+                    <li class="page-item" th:each="pageNum : ${#numbers.sequence(0, hallsPage.totalPages - 1)}"
+                        th:classappend="${pageNum == hallsPage.number} ? 'active'">
+                        <a class="page-link" th:href="@{'/halls'(page=${pageNum},size=${hallsPage.size})}" th:text="${pageNum + 1}"></a>
+                    </li>
+                    <li class="page-item" th:classappend="${hallsPage.last} ? 'disabled'">
+                        <a class="page-link" th:href="@{'/halls'(page=${hallsPage.number + 1},size=${hallsPage.size})}">Вперёд</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

@@ -1,6 +1,7 @@
 package ru.alexandr.BookingCinemaTickets.domain.model;
 
 import jakarta.persistence.*;
+import ru.alexandr.BookingCinemaTickets.application.dto.sessionSeat.SessionSeatData;
 import ru.alexandr.BookingCinemaTickets.domain.enums.SessionSeatStatus;
 
 import java.math.BigDecimal;
@@ -92,6 +93,11 @@ public class SessionSeat {
 
     public void setTicket(Ticket ticket) {
         this.ticket = ticket;
+    }
+
+    public void update(SessionSeatData data) {
+        setPrice(data.price());
+        setStatus(data.status());
     }
 
     @Override

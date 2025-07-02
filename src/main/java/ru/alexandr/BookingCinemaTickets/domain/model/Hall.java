@@ -1,11 +1,10 @@
 package ru.alexandr.BookingCinemaTickets.domain.model;
 
 import jakarta.persistence.*;
+import ru.alexandr.BookingCinemaTickets.application.dto.hall.HallData;
 import ru.alexandr.BookingCinemaTickets.domain.enums.SoundSystem;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "halls")
@@ -24,10 +23,10 @@ public class Hall {
     private SoundSystem soundSystem;
 
     @OneToMany(mappedBy = "hall", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final Set<Seat> seats = new HashSet<>();
+    private final List<Seat> seats = new ArrayList<>();
 
     @OneToMany(mappedBy = "hall", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final Set<Session> sessions = new HashSet<>();
+    private final List<Session> sessions = new ArrayList<>();
 
     public Hall(String name,
                 SoundSystem soundSystem) {
@@ -59,12 +58,28 @@ public class Hall {
         this.soundSystem = soundSystem;
     }
 
-    public Set<Seat> getSeats() {
+    public List<Seat> getSeats() {
         return seats;
     }
 
-    public Set<Session> getSessions() {
+    public List<Session> getSessions() {
         return sessions;
+    }
+
+    public void update(HallData data) {
+        setName(data.name());
+        setSoundSystem(data.soundSystem());
+    }
+
+    public void addSeats(List<Seat> newSeats) {
+        getSeats().removeIf(s -> !newSeats.contains(s));
+
+        for (Seat newSeat : newSeats) {
+            if (getSeats().contains(newSeat)) {
+                continue;
+            }
+            getSeats().add(newSeat);
+        }
     }
 
     @Override
