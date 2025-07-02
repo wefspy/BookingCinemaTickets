@@ -9,8 +9,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class TestEntityFactory {
-    public static Genre genre(Long id, String name) {
-        Genre genre = new Genre(name);
+    public static Genre genre(Long id, String name, String description) {
+        Genre genre = new Genre(name, description);
         setId(genre, id);
         return genre;
     }
@@ -33,10 +33,11 @@ public class TestEntityFactory {
 
     public static Movie movie(Long id,
                               String title,
+                              String description,
                               Integer durationInMinutes,
                               LocalDate releaseDate,
                               Rating rating) {
-        Movie movie = new Movie(title, durationInMinutes, releaseDate, rating);
+        Movie movie = new Movie(title, description, durationInMinutes, releaseDate, rating);
         setId(movie, id);
         return movie;
     }
